@@ -1,57 +1,76 @@
 library(shiny)
+library(tidyverse)
+
+# This part uses the recipes table for brevity, if full list of items is used
+# many of them will not have a recipe
+unique_product_names = RECIPES %>% 
+                          select(product) %>%
+                          arrange(decreasing=TRUE) %>%
+                          unique()
+
+# Temporary
+unique_recipe_names = RECIPES %>%
+                          #filter(product == product) %>%
+                          select(recipe) %>%
+                          arrange(decreasing=TRUE) %>%
+                          unique()
 
 ui <- fluidPage(
   
   # App title ----
-  titlePanel("Hello World!"),
+  titlePanel("Calculator"),
   
-  # Sidebar layout with input and output definitions ----
+  # Responsive sidebar
+  # items filter dropdown (selectInput) - DONE
+  # recipes filter dropdown, values reactive to items filter (selectInput)
+  # quantity input field (numericInput)
+  
+  # Responsive main panel
+  # table responsive to dropdowns in sidebar (renderDataTable)
+  
   sidebarLayout(
-    
-    # Sidebar panel for inputs ----
     sidebarPanel(
+      # Item filter
+      selectInput(inputId='item_filter', 
+                  label='Select Item', 
+                  choices=unique_product_names),
       
-      # Input: Slider for the number of bins ----
-      sliderInput(inputId = "bins",
-                  label = "Number of bins:",
-                  min = 5,
-                  max = 50,
-                  value = 30)
+      # Recipe filter based on item filter (unimplemented)
+      selectInput(inputId='recipe_filter', 
+                  label='Select Recipe', 
+                  choices=unique_recipe_names),
       
-    ),
-    
+      # Quantity input (unimplemented)
+      numericInput(inputId='quantity',
+                   label='Quantity',
+                   value=0)
+      ),
     # Main panel for displaying outputs ----
     mainPanel(
       
       # Output: Histogram ----
-      plotOutput(outputId = "distPlot")
-      
+      textOutput('item_selection')
     )
   )
 )
 
 # Define server logic required to draw a histogram ----
-server <- function(input, output) {
+server <- function(input, output, session) {
   
-  # Histogram of the Old Faithful Geyser Data ----
-  # with requested number of bins
-  # This expression that generates a histogram is wrapped in a call
-  # to renderPlot to indicate that:
-  #
-  # 1. It is "reactive" and therefore should be automatically
-  #    re-executed when inputs (input$bins) change
-  # 2. Its output type is a plot
+  output$item_selection = renderText({
+                            paste0('The selected item is: ', input$item_filter)
+  })
+  
   output$distPlot <- renderPlot({
     
     x    <- faithful$waiting
     bins <- seq(min(x), max(x), length.out = input$bins + 1)
     
-    hist(x, breaks = bins, col = "#75AADB", border = "orange",
+    hist(x, breaks = bins, col = "#75AADB", border = "white",
          xlab = "Waiting time to next eruption (in mins)",
          main = "Histogram of waiting times")
     
   })
-  
 }
 
 shinyApp(ui=ui, server=server)
