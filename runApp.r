@@ -1,7 +1,5 @@
 library(shiny)
 library(tidyverse)
-#runApp('satisfactory-calculator-app')
-
 #runExample('02_text')
 
 
@@ -54,3 +52,5 @@ ITEMS = import_as_tibble('data/items.csv')
 
 # Import buildings table
 BUILDINGS = import_as_tibble('data/buildings.csv')
+
+runApp('satisfactory-calculator-app')
