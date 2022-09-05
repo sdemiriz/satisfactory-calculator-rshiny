@@ -8,13 +8,6 @@ unique_product_names = RECIPES %>%
                           arrange(decreasing=TRUE) %>%
                           unique()
 
-# Temporary
-unique_recipe_names = RECIPES %>%
-                          #filter(product == product) %>%
-                          select(recipe) %>%
-                          arrange(decreasing=TRUE) %>%
-                          unique()
-
 ui <- fluidPage(
   
   # App title ----
@@ -36,9 +29,11 @@ ui <- fluidPage(
                   choices=unique_product_names),
       
       # Recipe filter based on item filter (unimplemented)
-      selectInput(inputId='recipe_filter', 
-                  label='Select Recipe', 
-                  choices=unique_recipe_names),
+      # selectInput(inputId='recipe_filter', 
+      #             label='Select Recipe', 
+      #             choices=character(0)),
+      
+      uiOutput('recipe_filter'),
       
       # Quantity input (unimplemented)
       numericInput(inputId='quantity',
@@ -49,7 +44,7 @@ ui <- fluidPage(
     mainPanel(
       
       # Output: Histogram ----
-      textOutput('item_selection')
+      dataTableOutput('recipes_table')
     )
   )
 )
@@ -57,20 +52,34 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram ----
 server <- function(input, output, session) {
   
-  output$item_selection = renderText({
-                            paste0('The selected item is: ', input$item_filter)
+  output$recipe_filter = renderUI({
+    
+    unique_recipe_names = RECIPES %>%
+                            filter(product == input$item_filter) %>%
+                            select(recipe) %>%
+                            arrange(decreasing=TRUE)
+    
+    selectInput('recipe_filter', 
+                'Select Recipe', 
+                unique_recipe_names)
   })
   
-  output$distPlot <- renderPlot({
+  output$recipes_table = renderDataTable({
     
-    x    <- faithful$waiting
-    bins <- seq(min(x), max(x), length.out = input$bins + 1)
+    unique_recipe_names = RECIPES %>%
+                            select(recipe, 
+                                   input_1, input_rate_1, 
+                                   input_2, input_rate_2, 
+                                   input_3, input_rate_3, 
+                                   input_4, input_rate_4, 
+                                   building, 
+                                   product, product_rate, 
+                                   byproduct, byproduct_rate) %>%
+                            filter(product == input$item_filter) %>%
+                            arrange(recipe, decreasing=TRUE)
     
-    hist(x, breaks = bins, col = "#75AADB", border = "white",
-         xlab = "Waiting time to next eruption (in mins)",
-         main = "Histogram of waiting times")
-    
-  })
+    })
+  
 }
 
 shinyApp(ui=ui, server=server)
