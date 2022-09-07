@@ -8,22 +8,16 @@ unique_product_names = RECIPES %>%
                           arrange(decreasing=TRUE) %>%
                           unique()
 
+FULL_PANEL_WIDTH = 12
 side_panel_width = 3
-main_panel_width = 12 - side_panel_width
+main_panel_width = FULL_PANEL_WIDTH - side_panel_width
 
 ui <- fluidPage(
   
-  # App title ----
+  # App title
   titlePanel("Calculator"),
   
-  # Responsive sidebar
-  # items filter dropdown (selectInput) - DONE
-  # recipes filter dropdown, values reactive to items filter (selectInput) - DONE
-  # quantity input field (numericInput) - DONE
-  
-  # Responsive main panel
-  # table responsive to dropdowns in sidebar (renderDataTable)
-  
+  # Item selector
   fluidRow(
     
       column(side_panel_width,
@@ -31,7 +25,7 @@ ui <- fluidPage(
           wellPanel(
             
           # Item filter
-          selectizeInput(inputId='item_filter', 
+          selectInput(inputId='item_filter', 
                       label='Select Item', 
                       choices=unique_product_names),
           
@@ -61,10 +55,16 @@ server <- function(input, output, session) {
                                 filter(product == input$item_filter) %>%
                                 select(recipe) %>%
                                 arrange(decreasing=TRUE)
-    
-        selectizeInput('recipe_filter', 
-                    'Select Recipe', 
-                    unique_recipe_names)
+        
+        # If only one recipe to make the item, don't show dropdown
+        if (count(unique_recipe_names) == 1){
+            unique_recipe_names = character(0)
+        }
+        
+        # Define the selectInput
+        selectInput(inputId='recipe_filter', 
+                    label='Select Recipe', 
+                    choices=unique_recipe_names)
   })
   
     output$recipes_table = renderTable({
