@@ -2,6 +2,7 @@ library(shiny)
 library(tidyverse)
 #runExample('02_text')
 
+options(shiny.port = 8888)
 
 import_as_tibble = function(table_dir){
   return(as_tibble(read.csv(table_dir, header = TRUE)))
@@ -53,4 +54,4 @@ ITEMS = import_as_tibble('data/items.csv')
 # Import buildings table
 BUILDINGS = import_as_tibble('data/buildings.csv')
 
-runApp('satisfactory-calculator-app')
+runApp('satisfactory-calculator-app', port = getOption("shiny.port"))
