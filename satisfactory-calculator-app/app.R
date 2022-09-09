@@ -41,7 +41,13 @@ ui <- fluidPage(
                 # Amount of selected item to produce using the selected recipe
                 numericInput(inputId='quantity',
                              label='Quantity',
-                             value=0)
+                             value=0),
+                
+                actionButton(inputId='crafting_start', 
+                             label='Begin crafting tree'),
+                
+                actionButton(inputId='crafting_clear', 
+                             label='Clear crafting tree')
             )
         ),
   
@@ -56,8 +62,7 @@ ui <- fluidPage(
         
         column(FULL_PANEL_WIDTH,
         
-            # TODO - add selected item, recipe, quantity to this table via button
-            # TODO - add clear table button
+            
             # Maybe have a bar with buttons for all the functions?
             tableOutput('crafting_table')
                
@@ -102,10 +107,43 @@ server <- function(input, output, session) {
     
     })
     
+    observeEvent(input$crafting_start, {
+        selected_recipe = RECIPES %>%
+                            filter(product == input$item_filter,
+                                   recipe == input$recipe_filter) %>%
+                            select(recipe, 
+                                   input_1, input_rate_1,
+                                   input_2, input_rate_2,
+                                   input_3, input_rate_3,
+                                   input_4, input_rate_4,
+                                   building,
+                                   product, product_rate,
+                                   byproduct, byproduct_rate)
+      
+        CRAFTING_TREE = CRAFTING_TREE %>% add_row(selected_recipe)
+        
+        output$crafting_table = renderTable({
+          
+          crafting_tree_table = CRAFTING_TREE
+          
+        })
+      
+    })
+    
+    observeEvent(input$crafting_clear, {
+      
+      output$crafting_table = renderTable({
+        
+        crafting_tree_table = CRAFTING_TEMPLATE
+        
+      })
+      
+    })
+    
     output$crafting_table = renderTable({
-      
-        unique_recipe_names = RECIPES
-      
+
+      crafting_tree_table = CRAFTING_TEMPLATE
+
     })
 }
 
