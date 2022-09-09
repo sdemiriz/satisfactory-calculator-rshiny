@@ -57,5 +57,17 @@ RECIPES = recipes_add_reverse_rates(RECIPES)
 # Add bool column for presence/absence of byproducts of the recipe
 RECIPES = recipes_add_has_byproduct(RECIPES)
 
+# Initialize a tibble for the crafting chain
+CRAFTING_TEMPLATE = tibble(recipe=character(),
+                        input_1=character(), input_rate_1=numeric(),
+                        input_2=character(), input_rate_2=numeric(),
+                        input_3=character(), input_rate_3=numeric(),
+                        input_4=character(), input_rate_4=numeric(),
+                        building=character(),
+                        product=character(), product_rate=numeric(),
+                        byproduct=character(), byproduct_rate=numeric())
+
+CRAFTING_TREE = CRAFTING_TEMPLATE
+
 # Run app located in specified dir
 runApp('satisfactory-calculator-app', port = getOption("shiny.port"))
