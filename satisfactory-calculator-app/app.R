@@ -60,13 +60,33 @@ ui <- fluidPage(
     # Crafting table
     fluidRow(
         
-        column(FULL_PANEL_WIDTH,
+        column(side_panel_width,
         
             
-            # Maybe have a bar with buttons for all the functions?
-            tableOutput('crafting_table')
+            wellPanel(
+            
+                selectInput(inputId='dropdown-1',
+                            label='Select input to craft',
+                            choices=c(1,2,3)),
+                
+                selectInput(inputId='dropdown-2',
+                            label='Select recipe to use',
+                            choices=c(1,2,3)),
+                
+                actionButton(inputId='button-1',
+                             label='Confirm selections')
+              
+            )
                
-        )
+        ),
+        
+        column(main_panel_width,
+               
+               
+               # Maybe have a bar with buttons for all the functions?
+               tableOutput('crafting_table')
+               
+        ),
     )
 )
 
