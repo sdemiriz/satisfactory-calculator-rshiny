@@ -69,5 +69,5 @@ CRAFTING_TEMPLATE = tibble(recipe=character(),
 
 CRAFTING_TREE = CRAFTING_TEMPLATE
 
-# Run app located in specified dir
+# Run app located in specified dir at specified port
 runApp('satisfactory-calculator-app', port = getOption("shiny.port"))
