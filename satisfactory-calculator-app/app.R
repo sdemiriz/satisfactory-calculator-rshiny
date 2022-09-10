@@ -82,7 +82,7 @@ server <- function(input, output, session) {
         
         # If only one recipe to make the item, don't show dropdown
         if (count(unique_recipe_names) <= 1){
-            unique_recipe_names = character(0)
+            unique_recipe_names = unique_recipe_names$recipe[[1]]
         }
         
         # Define the selectInput
@@ -108,6 +108,7 @@ server <- function(input, output, session) {
     })
     
     observeEvent(input$crafting_start, {
+      
         selected_recipe = RECIPES %>%
                             filter(product == input$item_filter,
                                    recipe == input$recipe_filter) %>%
@@ -119,7 +120,7 @@ server <- function(input, output, session) {
                                    building,
                                    product, product_rate,
                                    byproduct, byproduct_rate)
-      
+        
         CRAFTING_TREE = CRAFTING_TREE %>% add_row(selected_recipe)
         
         output$crafting_table = renderTable({
