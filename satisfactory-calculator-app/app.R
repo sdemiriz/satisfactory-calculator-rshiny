@@ -159,6 +159,41 @@ server <- function(input, output, session) {
           crafting_tree_table = CRAFTING_TREE
           
         })
+        
+        
+        gather_inputs = function(source_table, sink_table) {
+          
+          str_input = 'input_'
+          str_input_rate = 'input_rate_'
+          
+          str_total_inputs='total_inputs'
+          str_total_inputs_rates = 'total_inputs_rates'
+          
+          for (i in c(1,2,3,4)) {
+            
+            str_input_i = paste0(str_input, i)
+            str_input_rate_i = paste0(str_input_rate, i)
+            
+            to_append = source_table %>% select(all_of(str_input_i), 
+                                                all_of(str_input_rate_i)) %>%
+                                          rename('total_inputs'=all_of(str_input_i), 
+                                                 'total_inputs_rates'=all_of(str_input_rate_i))
+            
+            sink_table = sink_table %>% add_row(to_append)
+            
+          }
+          
+          
+            sink_table = sink_table %>% 
+                            drop_na() %>%
+                            group_by(total_inputs) %>%
+                            summarise(total_inputs_rates=sum(total_inputs_rates))
+            return(sink_table)
+          
+        }
+        
+        
+        # print(gather_inputs(CRAFTING_TREE, TOTAL_INPUTS)$total_inputs_rates)
       
     })
     
