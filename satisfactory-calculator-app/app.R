@@ -39,7 +39,7 @@ ui <- fluidPage(
                 uiOutput('recipe_filter'),
                 
                 # Amount of selected item to produce using the selected recipe
-                numericInput(inputId='quantity',
+                numericInput(inputId='item_quantity',
                              label='Quantity',
                              value=0),
                 
@@ -141,6 +141,17 @@ server <- function(input, output, session) {
                                    product, product_rate,
                                    byproduct, byproduct_rate)
         
+        selected_quantity = input$item_quantity
+        
+        crafting_ratio = selected_quantity / selected_recipe$product_rate
+        
+        selected_recipe$product_rate = crafting_ratio * selected_recipe$product_rate
+        
+        selected_recipe$input_rate_1 = crafting_ratio * selected_recipe$input_rate_1
+        selected_recipe$input_rate_2 = crafting_ratio * selected_recipe$input_rate_2
+        selected_recipe$input_rate_3 = crafting_ratio * selected_recipe$input_rate_3
+        selected_recipe$input_rate_4 = crafting_ratio * selected_recipe$input_rate_4
+
         CRAFTING_TREE = CRAFTING_TREE %>% add_row(selected_recipe)
         
         output$crafting_table = renderTable({
