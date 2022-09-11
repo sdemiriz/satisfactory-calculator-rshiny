@@ -166,9 +166,6 @@ server <- function(input, output, session) {
           str_input = 'input_'
           str_input_rate = 'input_rate_'
           
-          str_total_inputs='total_inputs'
-          str_total_inputs_rates = 'total_inputs_rates'
-          
           for (i in c(1,2,3,4)) {
             
             str_input_i = paste0(str_input, i)
@@ -176,8 +173,8 @@ server <- function(input, output, session) {
             
             to_append = source_table %>% select(all_of(str_input_i), 
                                                 all_of(str_input_rate_i)) %>%
-                                          rename('total_inputs'=all_of(str_input_i), 
-                                                 'total_inputs_rates'=all_of(str_input_rate_i))
+                                          rename(total_inputs=all_of(str_input_i), 
+                                                 total_inputs_rates=all_of(str_input_rate_i))
             
             sink_table = sink_table %>% add_row(to_append)
             
@@ -188,12 +185,34 @@ server <- function(input, output, session) {
                             drop_na() %>%
                             group_by(total_inputs) %>%
                             summarise(total_inputs_rates=sum(total_inputs_rates))
+            
             return(sink_table)
           
         }
         
+        gather_products = function(source_table, sink_table) {
+          
+          str_product = 'product'
+          str_product_rate = 'product_rate'
+          
+          to_append = source_table %>% select(all_of(str_product), 
+                                              all_of(str_product_rate)) %>%
+                                        rename(total_products=all_of(str_product), 
+                                               total_products_rates=all_of(str_product_rate))
+          
+          sink_table = sink_table %>% add_row(to_append)
+          
+          sink_table = sink_table %>%
+                          drop_na() %>%
+                          group_by(total_products) %>%
+                          summarise(total_products_rates=sum(total_products_rates))
+          
+          return(sink_table)
+          
+        }
         
-        # print(gather_inputs(CRAFTING_TREE, TOTAL_INPUTS)$total_inputs_rates)
+        # print(gather_products(CRAFTING_TREE, TOTAL_INPUTS)$total_inputs_rates)
+        # print(gather_products(CRAFTING_TREE, TOTAL_PRODUCTS)$total_products_rates)
       
     })
     
