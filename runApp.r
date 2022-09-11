@@ -69,5 +69,8 @@ CRAFTING_TEMPLATE = tibble(recipe=character(),
 
 CRAFTING_TREE = CRAFTING_TEMPLATE
 
+TOTAL_INPUTS = tibble(total_inputs=character(),
+                      total_inputs_rates=numeric())
+
 # Run app located in specified dir at specified port
 runApp('satisfactory-calculator-app', port = getOption("shiny.port"))
