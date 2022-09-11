@@ -211,8 +211,30 @@ server <- function(input, output, session) {
           
         }
         
-        # print(gather_products(CRAFTING_TREE, TOTAL_INPUTS)$total_inputs_rates)
+        gather_byproducts = function(source_table, sink_table) {
+          
+          str_byproduct = 'byproduct'
+          str_byproduct_rate = 'byproduct_rate'
+          
+          to_append = source_table %>% select(all_of(str_byproduct), 
+                                              all_of(str_byproduct_rate)) %>%
+                                        rename(total_byproducts=all_of(str_byproduct), 
+                                               total_byproducts_rates=all_of(str_byproduct_rate))
+          
+          sink_table = sink_table %>% add_row(to_append)
+          
+          sink_table = sink_table %>%
+                          drop_na() %>%
+                          group_by(total_byproducts) %>%
+                          summarise(total_byproducts_rates=sum(total_byproducts_rates))
+          
+          return(sink_table)
+          
+        }
+        
+        # print(gather_inputs(CRAFTING_TREE, TOTAL_INPUTS)$total_inputs_rates)
         # print(gather_products(CRAFTING_TREE, TOTAL_PRODUCTS)$total_products_rates)
+        # print(gather_byproducts(CRAFTING_TREE, TOTAL_BYPRODUCTS)$total_byproducts_rates)
       
     })
     
