@@ -44,6 +44,92 @@ recipes_add_has_byproduct = function(recipes_tibble){
     return(recipes_tibble)
 }
 
+gather_inputs = function(source_table) {
+  
+  TOTAL_INPUTS = tibble(total_inputs=character(),
+                        total_inputs_rates=numeric())
+  
+  sink_table = TOTAL_INPUTS
+  
+  str_input = 'input_'
+  str_input_rate = 'input_rate_'
+  
+  for (i in c(1,2,3,4)) {
+    
+    str_input_i = paste0(str_input, i)
+    str_input_rate_i = paste0(str_input_rate, i)
+    
+    to_append = source_table %>% select(all_of(str_input_i), 
+                                        all_of(str_input_rate_i)) %>%
+      rename(total_inputs=all_of(str_input_i), 
+             total_inputs_rates=all_of(str_input_rate_i))
+    
+    sink_table = sink_table %>% add_row(to_append)
+    
+  }
+  
+  
+  sink_table = sink_table %>% 
+    drop_na() %>%
+    group_by(total_inputs) %>%
+    summarise(total_inputs_rates=sum(total_inputs_rates))
+  
+  return(sink_table)
+  
+}
+
+gather_products = function(source_table) {
+  
+  TOTAL_PRODUCTS = tibble(total_products=character(),
+                          total_products_rates=numeric())
+  
+  sink_table = TOTAL_PRODUCTS
+  
+  str_product = 'product'
+  str_product_rate = 'product_rate'
+  
+  to_append = source_table %>% select(all_of(str_product), 
+                                      all_of(str_product_rate)) %>%
+    rename(total_products=all_of(str_product), 
+           total_products_rates=all_of(str_product_rate))
+  
+  sink_table = sink_table %>% add_row(to_append)
+  
+  sink_table = sink_table %>%
+    drop_na() %>%
+    group_by(total_products) %>%
+    summarise(total_products_rates=sum(total_products_rates))
+  
+  return(sink_table)
+  
+}
+
+gather_byproducts = function(source_table) {
+  
+  TOTAL_BYPRODUCTS = tibble(total_byproducts=character(),
+                            total_byproducts_rates=numeric())
+  
+  sink_table = TOTAL_BYPRODUCTS
+  
+  str_byproduct = 'byproduct'
+  str_byproduct_rate = 'byproduct_rate'
+  
+  to_append = source_table %>% select(all_of(str_byproduct), 
+                                      all_of(str_byproduct_rate)) %>%
+    rename(total_byproducts=all_of(str_byproduct), 
+           total_byproducts_rates=all_of(str_byproduct_rate))
+  
+  sink_table = sink_table %>% add_row(to_append)
+  
+  sink_table = sink_table %>%
+    drop_na() %>%
+    group_by(total_byproducts) %>%
+    summarise(total_byproducts_rates=sum(total_byproducts_rates))
+  
+  return(sink_table)
+  
+}
+
 # Import recipes, items, buildings tables
 RECIPES = import_as_tibble('data/recipes.csv')
 ITEMS = import_as_tibble('data/items.csv')
@@ -68,15 +154,6 @@ CRAFTING_TEMPLATE = tibble(recipe=character(),
                         byproduct=character(), byproduct_rate=numeric())
 
 CRAFTING_TREE = CRAFTING_TEMPLATE
-
-TOTAL_INPUTS = tibble(total_inputs=character(),
-                      total_inputs_rates=numeric())
-
-TOTAL_PRODUCTS = tibble(total_products=character(),
-                        total_products_rates=numeric())
-
-TOTAL_BYPRODUCTS = tibble(total_byproducts=character(),
-                        total_byproducts_rates=numeric())
 
 # Run app located in specified dir at specified port
 runApp('satisfactory-calculator-app', port = getOption("shiny.port"))
