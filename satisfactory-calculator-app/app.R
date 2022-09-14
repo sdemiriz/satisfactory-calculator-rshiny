@@ -41,7 +41,7 @@ ui <- fluidPage(
                 # Amount of selected item to produce using the selected recipe
                 numericInput(inputId='item_quantity',
                              label='Quantity',
-                             value=0),
+                             value=10),
                 
                 actionButton(inputId='crafting_start', 
                              label='Begin crafting tree'),
@@ -65,28 +65,26 @@ ui <- fluidPage(
             
             wellPanel(
             
-                selectInput(inputId='dropdown-1',
-                            label='Select input to craft',
-                            choices=c(1,2,3)),
+                uiOutput('dropdown_1'),
                 
-                selectInput(inputId='dropdown-2',
-                            label='Select recipe to use',
-                            choices=c(1,2,3)),
+                uiOutput('dropdown_2'),
+                
+                # selectInput(inputId='dropdown-2',
+                #             label='Select recipe to use',
+                #             choices=c(1,2,3)),
                 
                 actionButton(inputId='button-1',
                              label='Confirm selections')
               
             )
-               
         ),
         
         column(main_panel_width,
                
-               
                # Maybe have a bar with buttons for all the functions?
                tableOutput('crafting_table')
                
-        ),
+        )
     )
 )
 
@@ -146,6 +144,7 @@ server <- function(input, output, session) {
         crafting_ratio = selected_quantity / selected_recipe$product_rate
         
         selected_recipe$product_rate = crafting_ratio * selected_recipe$product_rate
+        selected_recipe$byproduct_rate = crafting_ratio * selected_recipe$byproduct_rate
         
         selected_recipe$input_rate_1 = crafting_ratio * selected_recipe$input_rate_1
         selected_recipe$input_rate_2 = crafting_ratio * selected_recipe$input_rate_2
@@ -156,95 +155,65 @@ server <- function(input, output, session) {
         
         output$crafting_table = renderTable({
           
-          crafting_tree_table = CRAFTING_TREE
+          CRAFTING_TREE
           
         })
         
+        all_inputs_from_crafting = gather_inputs(CRAFTING_TREE)
         
-        gather_inputs = function(source_table, sink_table) {
-          
-          str_input = 'input_'
-          str_input_rate = 'input_rate_'
-          
-          for (i in c(1,2,3,4)) {
-            
-            str_input_i = paste0(str_input, i)
-            str_input_rate_i = paste0(str_input_rate, i)
-            
-            to_append = source_table %>% select(all_of(str_input_i), 
-                                                all_of(str_input_rate_i)) %>%
-                                          rename(total_inputs=all_of(str_input_i), 
-                                                 total_inputs_rates=all_of(str_input_rate_i))
-            
-            sink_table = sink_table %>% add_row(to_append)
-            
-          }
-          
-          
-            sink_table = sink_table %>% 
-                            drop_na() %>%
-                            group_by(total_inputs) %>%
-                            summarise(total_inputs_rates=sum(total_inputs_rates))
-            
-            return(sink_table)
-          
-        }
+        chosen_unique_recipe_names = all_inputs_from_crafting$total_inputs
         
-        gather_products = function(source_table, sink_table) {
-          
-          str_product = 'product'
-          str_product_rate = 'product_rate'
-          
-          to_append = source_table %>% select(all_of(str_product), 
-                                              all_of(str_product_rate)) %>%
-                                        rename(total_products=all_of(str_product), 
-                                               total_products_rates=all_of(str_product_rate))
-          
-          sink_table = sink_table %>% add_row(to_append)
-          
-          sink_table = sink_table %>%
-                          drop_na() %>%
-                          group_by(total_products) %>%
-                          summarise(total_products_rates=sum(total_products_rates))
-          
-          return(sink_table)
-          
-        }
+        output$dropdown_1 = renderUI({
+
+          selectInput(inputId='dropdown_1',
+                      label='Select Recipe',
+                      choices=chosen_unique_recipe_names)
+        })
         
-        gather_byproducts = function(source_table, sink_table) {
+        output$dropdown_2 = renderUI({
           
-          str_byproduct = 'byproduct'
-          str_byproduct_rate = 'byproduct_rate'
-          
-          to_append = source_table %>% select(all_of(str_byproduct), 
-                                              all_of(str_byproduct_rate)) %>%
-                                        rename(total_byproducts=all_of(str_byproduct), 
-                                               total_byproducts_rates=all_of(str_byproduct_rate))
-          
-          sink_table = sink_table %>% add_row(to_append)
-          
-          sink_table = sink_table %>%
-                          drop_na() %>%
-                          group_by(total_byproducts) %>%
-                          summarise(total_byproducts_rates=sum(total_byproducts_rates))
-          
-          return(sink_table)
-          
-        }
+            selected_unique_recipe_names = RECIPES %>%
+                                              filter(product==input$dropdown_1) %>%
+                                              select(recipe) %>%
+                                              arrange(decreasing=TRUE)
+            
+            # If only one recipe to make the item, don't show dropdown
+            # TODO: Needs raw material filtering
+            # if (count(selected_unique_recipe_names) <= 1){
+            #   selected_unique_recipe_names = selected_unique_recipe_names$recipe[[1]]
+            # }
+            
+            # Define the selectInput
+            selectInput(inputId='dropdown_2', 
+                        label='Select Recipe', 
+                        choices=selected_unique_recipe_names)
+          })
         
-        # print(gather_inputs(CRAFTING_TREE, TOTAL_INPUTS)$total_inputs_rates)
-        # print(gather_products(CRAFTING_TREE, TOTAL_PRODUCTS)$total_products_rates)
-        # print(gather_byproducts(CRAFTING_TREE, TOTAL_BYPRODUCTS)$total_byproducts_rates)
-      
+    })
+
+    output$dropdown_1 = renderUI({
+
+        # Define the selectInput
+        selectInput(inputId='dropdown_1',
+                    label='Select Input',
+                    choices=character(0))
     })
     
+    output$dropdown_2 = renderUI({
+      
+      # Define the selectInput
+      selectInput(inputId='dropdown_2',
+                  label='Select Recipe',
+                  choices=character(0))
+    })
+
     observeEvent(input$crafting_clear, {
       
-      output$crafting_table = renderTable({
-        
-        crafting_tree_table = CRAFTING_TEMPLATE
-        
-      })
+        output$crafting_table = renderTable({
+          
+            crafting_tree_table = CRAFTING_TEMPLATE
+          
+        })
       
     })
     
