@@ -161,32 +161,37 @@ server <- function(input, output, session) {
         
         all_inputs_from_crafting = gather_inputs(CRAFTING_TREE)
         
-        chosen_unique_recipe_names = all_inputs_from_crafting$total_inputs
+        all_inputs_from_crafting = all_inputs_from_crafting %>% 
+                                      inner_join(ITEMS, by=c("total_inputs"="item")) %>%
+                                      filter(is_raw==FALSE)
+        
+        total_inputs_from_crafting = all_inputs_from_crafting$total_inputs
         
         output$dropdown_1 = renderUI({
 
-          selectInput(inputId='dropdown_1',
-                      label='Select Recipe',
-                      choices=chosen_unique_recipe_names)
+            selectInput(inputId='dropdown_1',
+                        label='Select Recipe',
+                        choices=total_inputs_from_crafting)
         })
         
         output$dropdown_2 = renderUI({
           
-            selected_unique_recipe_names = RECIPES %>%
-                                              filter(product==input$dropdown_1) %>%
-                                              select(recipe) %>%
-                                              arrange(decreasing=TRUE)
+            recipes_from_total_inputs_crafting = RECIPES %>%
+                                                  filter(product==input$dropdown_1) %>%
+                                                  select(recipe) %>%
+                                                  arrange(decreasing=TRUE)
             
+            print(count(recipes_from_total_inputs_crafting))
+          
             # If only one recipe to make the item, don't show dropdown
-            # TODO: Needs raw material filtering
-            # if (count(selected_unique_recipe_names) <= 1){
-            #   selected_unique_recipe_names = selected_unique_recipe_names$recipe[[1]]
-            # }
+            if (count(recipes_from_total_inputs_crafting) <= 1){
+              recipes_from_total_inputs_crafting = recipes_from_total_inputs_crafting$recipe[[1]]
+            }
             
             # Define the selectInput
             selectInput(inputId='dropdown_2', 
                         label='Select Recipe', 
-                        choices=selected_unique_recipe_names)
+                        choices=recipes_from_total_inputs_crafting)
           })
         
     })
