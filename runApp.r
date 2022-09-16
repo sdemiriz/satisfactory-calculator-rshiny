@@ -4,44 +4,48 @@ library(tidyverse)
 
 options(shiny.port = 8888)
 
+FULL_PANEL_WIDTH = 12
+side_panel_width = 3
+main_panel_width = FULL_PANEL_WIDTH - side_panel_width
+
 import_as_tibble = function(table_dir){
-    
-    # Import .csv with header row from specified directory
-    return(as_tibble(read.csv(table_dir, header = TRUE)))
+  
+  # Import .csv with header row from specified directory
+  return(as_tibble(read.csv(table_dir, header = TRUE)))
 }
 
 recipes_add_forward_rates = function(recipes_tibble){
-    
-    # Add columns for [input_rate_{1,2,3,4} / output_rate]
-    recipes_tibble = recipes_tibble %>% 
-                        mutate(forward_ratio_1 = input_rate_1/product_rate,
-                               forward_ratio_2 = input_rate_2/product_rate,
-                               forward_ratio_3 = input_rate_3/product_rate,
-                               forward_ratio_4 = input_rate_4/product_rate)
   
-    return(recipes_tibble)
+  # Add columns for [input_rate_{1,2,3,4} / output_rate]
+  recipes_tibble = recipes_tibble %>% 
+    mutate(forward_ratio_1 = input_rate_1/product_rate,
+           forward_ratio_2 = input_rate_2/product_rate,
+           forward_ratio_3 = input_rate_3/product_rate,
+           forward_ratio_4 = input_rate_4/product_rate)
+  
+  return(recipes_tibble)
 }
 
 
 recipes_add_reverse_rates = function(recipes_tibble){
-    
-    # Add columns for [output_rate / input_rate_{1,2,3,4}]
-    recipes_tibble = recipes_tibble %>%
-                        mutate(reverse_ratio_1 = product_rate/input_rate_1,
-                               reverse_ratio_2 = product_rate/input_rate_2,
-                               reverse_ratio_3 = product_rate/input_rate_3,
-                               reverse_ratio_4 = product_rate/input_rate_4)
   
-    return(recipes_tibble)
+  # Add columns for [output_rate / input_rate_{1,2,3,4}]
+  recipes_tibble = recipes_tibble %>%
+    mutate(reverse_ratio_1 = product_rate/input_rate_1,
+           reverse_ratio_2 = product_rate/input_rate_2,
+           reverse_ratio_3 = product_rate/input_rate_3,
+           reverse_ratio_4 = product_rate/input_rate_4)
+  
+  return(recipes_tibble)
 }
 
 recipes_add_has_byproduct = function(recipes_tibble){
-    
-    # Add bool column to check if recipe has a byproduct
-    recipes_tibble = recipes_tibble %>%
-                        mutate(has_byproduct = !is.na(byproduct_rate))
   
-    return(recipes_tibble)
+  # Add bool column to check if recipe has a byproduct
+  recipes_tibble = recipes_tibble %>%
+    mutate(has_byproduct = !is.na(byproduct_rate))
+  
+  return(recipes_tibble)
 }
 
 gather_inputs = function(source_table) {
@@ -59,8 +63,9 @@ gather_inputs = function(source_table) {
     str_input_i = paste0(str_input, i)
     str_input_rate_i = paste0(str_input_rate, i)
     
-    to_append = source_table %>% select(all_of(str_input_i), 
-                                        all_of(str_input_rate_i)) %>%
+    to_append = source_table %>% 
+      select(all_of(str_input_i), 
+             all_of(str_input_rate_i)) %>%
       rename(total_inputs=all_of(str_input_i), 
              total_inputs_rates=all_of(str_input_rate_i))
     
@@ -88,8 +93,9 @@ gather_products = function(source_table) {
   str_product = 'product'
   str_product_rate = 'product_rate'
   
-  to_append = source_table %>% select(all_of(str_product), 
-                                      all_of(str_product_rate)) %>%
+  to_append = source_table %>% 
+    select(all_of(str_product), 
+           all_of(str_product_rate)) %>%
     rename(total_products=all_of(str_product), 
            total_products_rates=all_of(str_product_rate))
   
@@ -145,13 +151,13 @@ RECIPES = recipes_add_has_byproduct(RECIPES)
 
 # Initialize a tibble for the crafting chain
 CRAFTING_TEMPLATE = tibble(recipe=character(),
-                        input_1=character(), input_rate_1=numeric(),
-                        input_2=character(), input_rate_2=numeric(),
-                        input_3=character(), input_rate_3=numeric(),
-                        input_4=character(), input_rate_4=numeric(),
-                        building=character(),
-                        product=character(), product_rate=numeric(),
-                        byproduct=character(), byproduct_rate=numeric())
+                           input_1=character(), input_rate_1=numeric(),
+                           input_2=character(), input_rate_2=numeric(),
+                           input_3=character(), input_rate_3=numeric(),
+                           input_4=character(), input_rate_4=numeric(),
+                           building=character(),
+                           product=character(), product_rate=numeric(),
+                           byproduct=character(), byproduct_rate=numeric())
 
 CRAFTING_TREE = CRAFTING_TEMPLATE
 
