@@ -158,6 +158,8 @@ server <- function(input, output, session) {
       inner_join(ITEMS, by=c("total_inputs"="item")) %>%
       filter(is_raw==FALSE)
     
+    print(all_inputs_from_crafting)
+    
     total_inputs_from_crafting = all_inputs_from_crafting$total_inputs
     
     output$dropdown_1 = renderUI({
@@ -174,7 +176,7 @@ server <- function(input, output, session) {
                                             select(recipe) %>%
                                             arrange(recipe)
       
-      print(count(recipes_from_total_inputs_crafting))
+      # print(count(recipes_from_total_inputs_crafting))
       
       # Define the selectInput
       selectInput(inputId='dropdown_2', 
@@ -206,6 +208,22 @@ server <- function(input, output, session) {
       
       crafting_tree_table = CRAFTING_TEMPLATE
       
+    })
+    
+    output$dropdown_1 = renderUI({
+      
+      # Define the selectInput
+      selectInput(inputId='dropdown_1',
+                  label='Select Input',
+                  choices=character(0))
+    })
+    
+    output$dropdown_2 = renderUI({
+      
+      # Define the selectInput
+      selectInput(inputId='dropdown_2',
+                  label='Select Recipe',
+                  choices=character(0))
     })
     
   })
