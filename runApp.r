@@ -120,8 +120,9 @@ gather_byproducts = function(source_table) {
   str_byproduct = 'byproduct'
   str_byproduct_rate = 'byproduct_rate'
   
-  to_append = source_table %>% select(all_of(str_byproduct), 
-                                      all_of(str_byproduct_rate)) %>%
+  to_append = source_table %>% 
+    select(all_of(str_byproduct), 
+           all_of(str_byproduct_rate)) %>%
     rename(total_byproducts=all_of(str_byproduct), 
            total_byproducts_rates=all_of(str_byproduct_rate))
   
@@ -138,6 +139,7 @@ gather_byproducts = function(source_table) {
 
 add_crafting_step_to_tree = function(item_filter, recipe_filter, quantity, CRAFTING_TREE) {
   
+  # Query all available recipes for user selection via parameters
   recipe_row = RECIPES %>%
     filter(product == item_filter,
            recipe == recipe_filter) %>%
@@ -150,8 +152,10 @@ add_crafting_step_to_tree = function(item_filter, recipe_filter, quantity, CRAFT
            product, product_rate,
            byproduct, byproduct_rate)
   
+  # Calculate the ratio (how many times the recipe is to be used for the step)
   ratio = calc_ratio(quantity, recipe_row$product_rate)
   
+  # Multiply product, byproduct and all inputs by ratio
   recipe_row$product_rate = ratio_x_col(recipe_row$product_rate, ratio)
   recipe_row$byproduct_rate = ratio_x_col(recipe_row$byproduct_rate, ratio)
 
@@ -160,24 +164,28 @@ add_crafting_step_to_tree = function(item_filter, recipe_filter, quantity, CRAFT
   recipe_row$input_rate_3 = ratio_x_col(recipe_row$input_rate_3, ratio)
   recipe_row$input_rate_4 = ratio_x_col(recipe_row$input_rate_4, ratio)
   
+  # Add ratio-multiplied row as step to crafting tree
   CRAFTING_TREE = add_to_crafting_tree(CRAFTING_TREE, recipe_row)
   
   return(CRAFTING_TREE)
   
 }
 
-calc_ratio = function(quantity, recipe_quantity) {
+# Divide user-desired rate by recipe rate from table
+calc_ratio = function(desired_rate, recipe_rate) {
   
-  return(quantity / recipe_quantity)
+  return(desired_rate / recipe_rate)
   
 }
 
+# Divide user-desired rate by recipe rate from table
 ratio_x_col = function(col, ratio) {
   
-  return(ratio * col)
+  return(col * ratio)
   
 }
 
+# Add calculated step to crafting tree table
 add_to_crafting_tree = function(CRAFTING_TREE, row) {
   
   return(CRAFTING_TREE %>% add_row(row))
@@ -207,6 +215,7 @@ CRAFTING_TEMPLATE = tibble(recipe=character(),
                            product=character(), product_rate=numeric(),
                            byproduct=character(), byproduct_rate=numeric())
 
+# Make a copy of the template for use
 CRAFTING_TREE = CRAFTING_TEMPLATE
 
 # Run app located in specified dir at specified port
