@@ -136,6 +136,54 @@ gather_byproducts = function(source_table) {
   
 }
 
+add_crafting_step_to_tree = function(item_filter, recipe_filter, quantity, CRAFTING_TREE) {
+  
+  recipe_row = RECIPES %>%
+    filter(product == item_filter,
+           recipe == recipe_filter) %>%
+    select(recipe, 
+           input_1, input_rate_1,
+           input_2, input_rate_2,
+           input_3, input_rate_3,
+           input_4, input_rate_4,
+           building,
+           product, product_rate,
+           byproduct, byproduct_rate)
+  
+  ratio = calc_ratio(quantity, recipe_row$product_rate)
+  
+  recipe_row$product_rate = ratio_x_col(recipe_row$product_rate, ratio)
+  recipe_row$byproduct_rate = ratio_x_col(recipe_row$byproduct_rate, ratio)
+
+  recipe_row$input_rate_1 = ratio_x_col(recipe_row$input_rate_1, ratio)
+  recipe_row$input_rate_2 = ratio_x_col(recipe_row$input_rate_2, ratio)
+  recipe_row$input_rate_3 = ratio_x_col(recipe_row$input_rate_3, ratio)
+  recipe_row$input_rate_4 = ratio_x_col(recipe_row$input_rate_4, ratio)
+  
+  CRAFTING_TREE = add_to_crafting_tree(CRAFTING_TREE, recipe_row)
+  
+  return(CRAFTING_TREE)
+  
+}
+
+calc_ratio = function(quantity, recipe_quantity) {
+  
+  return(quantity / recipe_quantity)
+  
+}
+
+ratio_x_col = function(col, ratio) {
+  
+  return(ratio * col)
+  
+}
+
+add_to_crafting_tree = function(CRAFTING_TREE, row) {
+  
+  return(CRAFTING_TREE %>% add_row(row))
+  
+}
+
 # Import recipes, items, buildings tables
 RECIPES = import_as_tibble('data/recipes.csv')
 ITEMS = import_as_tibble('data/items.csv')

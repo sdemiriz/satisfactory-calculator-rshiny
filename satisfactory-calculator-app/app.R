@@ -1,6 +1,8 @@
 library(shiny)
 library(tidyverse)
 
+RECIPE_MEMORY = c()
+
 ui <- fluidPage(
   
   fluidRow(
@@ -54,7 +56,7 @@ ui <- fluidPage(
         
         uiOutput('dropdown_2'),
         
-        actionButton(inputId='button-1',
+        actionButton(inputId='button_1',
                     label='Confirm selections')
         
         )
@@ -120,31 +122,8 @@ server <- function(input, output, session) {
   
   observeEvent(input$crafting_start, {
     
-    selected_recipe = RECIPES %>%
-      filter(product == input$item_filter,
-             recipe == input$recipe_filter) %>%
-      select(recipe, 
-             input_1, input_rate_1,
-             input_2, input_rate_2,
-             input_3, input_rate_3,
-             input_4, input_rate_4,
-             building,
-             product, product_rate,
-             byproduct, byproduct_rate)
-    
-    selected_quantity = input$item_quantity
-    
-    crafting_ratio = selected_quantity / selected_recipe$product_rate
-    
-    selected_recipe$product_rate = crafting_ratio * selected_recipe$product_rate
-    selected_recipe$byproduct_rate = crafting_ratio * selected_recipe$byproduct_rate
-    
-    selected_recipe$input_rate_1 = crafting_ratio * selected_recipe$input_rate_1
-    selected_recipe$input_rate_2 = crafting_ratio * selected_recipe$input_rate_2
-    selected_recipe$input_rate_3 = crafting_ratio * selected_recipe$input_rate_3
-    selected_recipe$input_rate_4 = crafting_ratio * selected_recipe$input_rate_4
-    
-    CRAFTING_TREE = CRAFTING_TREE %>% add_row(selected_recipe)
+    CRAFTING_TREE = add_crafting_step_to_tree(input$item_filter, input$recipe_filter, 
+                                              input$item_quantity, CRAFTING_TREE)
     
     output$crafting_table = renderTable({
       
@@ -154,12 +133,10 @@ server <- function(input, output, session) {
     
     all_inputs_from_crafting = gather_inputs(CRAFTING_TREE)
     
-    all_inputs_from_crafting = all_inputs_from_crafting %>% 
+    all_inputs_from_crafting = all_inputs_from_crafting %>%
       inner_join(ITEMS, by=c("total_inputs"="item")) %>%
       filter(is_raw==FALSE)
-    
-    print(all_inputs_from_crafting)
-    
+
     total_inputs_from_crafting = all_inputs_from_crafting$total_inputs
     
     output$dropdown_1 = renderUI({
@@ -175,8 +152,6 @@ server <- function(input, output, session) {
                                             filter(product==input$dropdown_1) %>%
                                             select(recipe) %>%
                                             arrange(recipe)
-      
-      # print(count(recipes_from_total_inputs_crafting))
       
       # Define the selectInput
       selectInput(inputId='dropdown_2', 
