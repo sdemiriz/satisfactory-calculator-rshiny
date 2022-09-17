@@ -48,93 +48,86 @@ recipes_add_has_byproduct = function(recipes_tibble){
   return(recipes_tibble)
 }
 
-gather_inputs = function(source_table) {
+gather_inputs = function(CRAFTING_TREE) {
   
-  TOTAL_INPUTS = tibble(total_inputs=character(),
-                        total_inputs_rates=numeric())
+  # Call generic function to return the content of input columns
+  return(gather_columns(CRAFTING_TREE, 'input'))
+}
+
+gather_products = function(CRAFTING_TREE) {
   
-  sink_table = TOTAL_INPUTS
+  # Call generic function to return the content of the product column
+  return(gather_columns(CRAFTING_TREE, 'product'))
+}
+
+gather_byproducts = function(CRAFTING_TREE) {
   
-  str_input = 'input_'
-  str_input_rate = 'input_rate_'
+  # Call generic function to return the content of the byproduct column
+  return(gather_columns(CRAFTING_TREE, 'byproduct'))
+}
+
+gather_columns = function(CRAFTING_TREE, col_type) {
   
-  for (i in c(1,2,3,4)) {
+  # Use specified column type for future columns names
+  str_col = paste0('total_', col_type, 's')
+  str_col_rate = paste0('total_', col_type, '_rates')
+  
+  # Generate table to return at the end with appropriate columns
+  total_table = tibble({{str_col}}:=character(),
+                          {{str_col_rate}}:=numeric())
+  
+  # If single columns are requested
+  if(col_type == 'product' | col_type == 'byproduct') {
     
-    str_input_i = paste0(str_input, i)
-    str_input_rate_i = paste0(str_input_rate, i)
+    # Mimic column names in the crafting tree tables
+    str_col_tree = paste0(col_type)
+    str_col_rate_tree = paste0(col_type, '_rate')
     
-    to_append = source_table %>% 
-      select(all_of(str_input_i), 
-             all_of(str_input_rate_i)) %>%
-      rename(total_inputs=all_of(str_input_i), 
-             total_inputs_rates=all_of(str_input_rate_i))
+    # Select the mimicked columns and rename them to local names generated at the start
+    to_append = CRAFTING_TREE %>% 
+                select({{str_col_tree}}, {{str_col_rate_tree}}) %>%
+                rename({{str_col}}:={{str_col_tree}}, {{str_col_rate}}:={{str_col_rate_tree}})
     
-    sink_table = sink_table %>% add_row(to_append)
+    # Add to the final table to be returned, remove NAs if present
+    total_table = total_table %>% add_row(to_append) %>% drop_na()
     
+    # Group by item name and sum all rates for each item
+    total_table = get_per_item_rates(total_table, str_col, str_col_rate)
+
+  # If 4 input columns are requested
+  } else if(col_type == 'input') {
+    
+    # For each of the 4 input columns
+    for (i in 1:4) {
+      
+      # Mimic column names in the crafting tree tables
+      str_col_i = paste0(col_type, '_', i)
+      str_col_rate_i = paste0(col_type, '_rate_', i)
+      
+      # Select the mimicked columns and rename them to local names generated at the start
+      to_append = CRAFTING_TREE %>%
+                  select({{str_col_i}}, {{str_col_rate_i}}) %>%
+                  rename({{str_col}}:={{str_col_i}}, {{str_col_rate}}:={{str_col_rate_i}})
+      
+      # Add to the final table to be returned, remove NAs if present
+      total_table = total_table %>% add_row(to_append) %>% drop_na()
+      
+      # Group by item name and sum all rates for each item
+      total_table = get_per_item_rates(total_table, str_col, str_col_rate)
+      
+    }
   }
   
-  
-  sink_table = sink_table %>% 
-    drop_na() %>%
-    group_by(total_inputs) %>%
-    summarise(total_inputs_rates=sum(total_inputs_rates))
-  
-  return(sink_table)
-  
+  return(total_table)
 }
 
-gather_products = function(source_table) {
+get_per_item_rates = function(table, grp_by, grp) {
   
-  TOTAL_PRODUCTS = tibble(total_products=character(),
-                          total_products_rates=numeric())
+  table = table %>%
+          group_by(.data[[grp_by]]) %>%
+          summarise({{grp}}:=sum(.data[[grp]]))
   
-  sink_table = TOTAL_PRODUCTS
-  
-  str_product = 'product'
-  str_product_rate = 'product_rate'
-  
-  to_append = source_table %>% 
-    select(all_of(str_product), 
-           all_of(str_product_rate)) %>%
-    rename(total_products=all_of(str_product), 
-           total_products_rates=all_of(str_product_rate))
-  
-  sink_table = sink_table %>% add_row(to_append)
-  
-  sink_table = sink_table %>%
-    drop_na() %>%
-    group_by(total_products) %>%
-    summarise(total_products_rates=sum(total_products_rates))
-  
-  return(sink_table)
-  
-}
-
-gather_byproducts = function(source_table) {
-  
-  TOTAL_BYPRODUCTS = tibble(total_byproducts=character(),
-                            total_byproducts_rates=numeric())
-  
-  sink_table = TOTAL_BYPRODUCTS
-  
-  str_byproduct = 'byproduct'
-  str_byproduct_rate = 'byproduct_rate'
-  
-  to_append = source_table %>% 
-    select(all_of(str_byproduct), 
-           all_of(str_byproduct_rate)) %>%
-    rename(total_byproducts=all_of(str_byproduct), 
-           total_byproducts_rates=all_of(str_byproduct_rate))
-  
-  sink_table = sink_table %>% add_row(to_append)
-  
-  sink_table = sink_table %>%
-    drop_na() %>%
-    group_by(total_byproducts) %>%
-    summarise(total_byproducts_rates=sum(total_byproducts_rates))
-  
-  return(sink_table)
-  
+  return(table)
 }
 
 add_crafting_step_to_tree = function(item_filter, recipe_filter, quantity, CRAFTING_TREE) {
@@ -168,28 +161,24 @@ add_crafting_step_to_tree = function(item_filter, recipe_filter, quantity, CRAFT
   CRAFTING_TREE = add_to_crafting_tree(CRAFTING_TREE, recipe_row)
   
   return(CRAFTING_TREE)
-  
 }
 
 # Divide user-desired rate by recipe rate from table
 calc_ratio = function(desired_rate, recipe_rate) {
   
   return(desired_rate / recipe_rate)
-  
 }
 
 # Divide user-desired rate by recipe rate from table
 ratio_x_col = function(col, ratio) {
   
   return(col * ratio)
-  
 }
 
 # Add calculated step to crafting tree table
 add_to_crafting_tree = function(CRAFTING_TREE, row) {
   
   return(CRAFTING_TREE %>% add_row(row))
-  
 }
 
 # Import recipes, items, buildings tables
