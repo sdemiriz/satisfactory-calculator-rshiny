@@ -7,7 +7,7 @@ ui <- fluidPage(
   
   fluidRow(
     
-    column(FULL_PANEL_WIDTH,
+    column(full_panel_width,
            
       titlePanel("Calculator")
     )

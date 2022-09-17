@@ -4,9 +4,9 @@ library(tidyverse)
 
 options(shiny.port = 8888)
 
-FULL_PANEL_WIDTH = 12
+full_panel_width = 12
 side_panel_width = 3
-main_panel_width = FULL_PANEL_WIDTH - side_panel_width
+main_panel_width = full_panel_width - side_panel_width
 
 import_as_tibble = function(table_dir){
   
@@ -18,10 +18,10 @@ recipes_add_forward_rates = function(recipes_tibble){
   
   # Add columns for [input_rate_{1,2,3,4} / output_rate]
   recipes_tibble = recipes_tibble %>% 
-    mutate(forward_ratio_1 = input_rate_1/product_rate,
-           forward_ratio_2 = input_rate_2/product_rate,
-           forward_ratio_3 = input_rate_3/product_rate,
-           forward_ratio_4 = input_rate_4/product_rate)
+                   mutate(forward_ratio_1 = input_rate_1/product_rate,
+                          forward_ratio_2 = input_rate_2/product_rate,
+                          forward_ratio_3 = input_rate_3/product_rate,
+                          forward_ratio_4 = input_rate_4/product_rate)
   
   return(recipes_tibble)
 }
@@ -31,10 +31,10 @@ recipes_add_reverse_rates = function(recipes_tibble){
   
   # Add columns for [output_rate / input_rate_{1,2,3,4}]
   recipes_tibble = recipes_tibble %>%
-    mutate(reverse_ratio_1 = product_rate/input_rate_1,
-           reverse_ratio_2 = product_rate/input_rate_2,
-           reverse_ratio_3 = product_rate/input_rate_3,
-           reverse_ratio_4 = product_rate/input_rate_4)
+                   mutate(reverse_ratio_1 = product_rate/input_rate_1,
+                          reverse_ratio_2 = product_rate/input_rate_2,
+                          reverse_ratio_3 = product_rate/input_rate_3,
+                          reverse_ratio_4 = product_rate/input_rate_4)
   
   return(recipes_tibble)
 }
@@ -43,7 +43,7 @@ recipes_add_has_byproduct = function(recipes_tibble){
   
   # Add bool column to check if recipe has a byproduct
   recipes_tibble = recipes_tibble %>%
-    mutate(has_byproduct = !is.na(byproduct_rate))
+                   mutate(has_byproduct = !is.na(byproduct_rate))
   
   return(recipes_tibble)
 }
@@ -74,7 +74,7 @@ gather_columns = function(CRAFTING_TREE, col_type) {
   
   # Generate table to return at the end with appropriate columns
   total_table = tibble({{str_col}}:=character(),
-                          {{str_col_rate}}:=numeric())
+                       {{str_col_rate}}:=numeric())
   
   # If single columns are requested
   if(col_type == 'product' | col_type == 'byproduct') {
@@ -86,7 +86,8 @@ gather_columns = function(CRAFTING_TREE, col_type) {
     # Select the mimicked columns and rename them to local names generated at the start
     to_append = CRAFTING_TREE %>% 
                 select({{str_col_tree}}, {{str_col_rate_tree}}) %>%
-                rename({{str_col}}:={{str_col_tree}}, {{str_col_rate}}:={{str_col_rate_tree}})
+                rename({{str_col}}:={{str_col_tree}}, 
+                       {{str_col_rate}}:={{str_col_rate_tree}})
     
     # Add to the final table to be returned, remove NAs if present
     total_table = total_table %>% add_row(to_append) %>% drop_na()
@@ -107,7 +108,8 @@ gather_columns = function(CRAFTING_TREE, col_type) {
       # Select the mimicked columns and rename them to local names generated at the start
       to_append = CRAFTING_TREE %>%
                   select({{str_col_i}}, {{str_col_rate_i}}) %>%
-                  rename({{str_col}}:={{str_col_i}}, {{str_col_rate}}:={{str_col_rate_i}})
+                  rename({{str_col}}:={{str_col_i}}, 
+                         {{str_col_rate}}:={{str_col_rate_i}})
       
       # Add to the final table to be returned, remove NAs if present
       total_table = total_table %>% add_row(to_append) %>% drop_na()
