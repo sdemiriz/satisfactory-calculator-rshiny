@@ -71,23 +71,23 @@ AddHasByproduct = function(recipes_tibble) {
 # Call generic function to return the content of input columns
 GatherInputs = function(CRAFTING_TREE) {
   
-  return(gather_columns(CRAFTING_TREE, 'input'))
+  return(.GatherColumns(CRAFTING_TREE, 'input'))
 }
 
 # Call generic function to return the content of the product column
 GatherProducts = function(CRAFTING_TREE) {
 
-  return(gather_columns(CRAFTING_TREE, 'product'))
+  return(.GatherColumns(CRAFTING_TREE, 'product'))
 }
 
 # Call generic function to return the content of the byproduct column
 GatherByproducts = function(CRAFTING_TREE) {
   
-  return(gather_columns(CRAFTING_TREE, 'byproduct'))
+  return(.GatherColumns(CRAFTING_TREE, 'byproduct'))
 }
 
 # Generic function to return contents of column(s) as one
-GatherColumns = function(CRAFTING_TREE, col_type) {
+.GatherColumns = function(CRAFTING_TREE, col_type) {
   
   # Use specified column type for future columns names
   str_col = paste0('total_', col_type, 's')
@@ -118,7 +118,7 @@ GatherColumns = function(CRAFTING_TREE, col_type) {
     total_table = total_table %>% add_row(to_append) %>% drop_na()
     
     # Group by item name and sum all rates for each item
-    total_table = GetPerItemRates(total_table, str_col, str_col_rate)
+    total_table = .GetPerItemRates(total_table, str_col, str_col_rate)
     
     # If 4 input columns are requested
   } else if(col_type == 'input') {
@@ -147,7 +147,7 @@ GatherColumns = function(CRAFTING_TREE, col_type) {
                       drop_na()
       
       # Group by item name and sum all rates for each item
-      total_table = GetPerItemRates(total_table, str_col, str_col_rate)
+      total_table = .GetPerItemRates(total_table, str_col, str_col_rate)
       
     }
   }
@@ -156,7 +156,7 @@ GatherColumns = function(CRAFTING_TREE, col_type) {
 }
 
 # Worker function to group tables by item name and sum rates
-GetPerItemRates = function(table, 
+.GetPerItemRates = function(table, 
                               grp_by, 
                               grp) {
   
@@ -192,37 +192,37 @@ AddCraftingStepToTree = function(item_filter,
                 )
   
   # Calculate the ratio (how many times the recipe is to be used for the step)
-  ratio = CalculateRatio(quantity, recipe_row$product_rate)
+  ratio = .CalculateRatio(quantity, recipe_row$product_rate)
   
   # Multiply product, byproduct and all inputs by ratio
-  recipe_row$product_rate = RatioTimesColumn(recipe_row$product_rate, ratio)
-  recipe_row$byproduct_rate = RatioTimesColumn(recipe_row$byproduct_rate, ratio)
+  recipe_row$product_rate = .RatioTimesColumn(recipe_row$product_rate, ratio)
+  recipe_row$byproduct_rate = .RatioTimesColumn(recipe_row$byproduct_rate, ratio)
   
-  recipe_row$input_rate_1 = RatioTimesColumn(recipe_row$input_rate_1, ratio)
-  recipe_row$input_rate_2 = RatioTimesColumn(recipe_row$input_rate_2, ratio)
-  recipe_row$input_rate_3 = RatioTimesColumn(recipe_row$input_rate_3, ratio)
-  recipe_row$input_rate_4 = RatioTimesColumn(recipe_row$input_rate_4, ratio)
+  recipe_row$input_rate_1 = .RatioTimesColumn(recipe_row$input_rate_1, ratio)
+  recipe_row$input_rate_2 = .RatioTimesColumn(recipe_row$input_rate_2, ratio)
+  recipe_row$input_rate_3 = .RatioTimesColumn(recipe_row$input_rate_3, ratio)
+  recipe_row$input_rate_4 = .RatioTimesColumn(recipe_row$input_rate_4, ratio)
   
   # Add ratio-multiplied row as step to crafting tree
-  CRAFTING_TREE = AddToCraftingTree(CRAFTING_TREE, recipe_row)
+  CRAFTING_TREE = .AddToCraftingTree(CRAFTING_TREE, recipe_row)
   
   return(CRAFTING_TREE)
 }
 
 # Worker function to divide user-desired rate by recipe rate from table
-CalculateRatio = function(desired_rate, recipe_rate) {
+.CalculateRatio = function(desired_rate, recipe_rate) {
   
   return(desired_rate / recipe_rate)
 }
 
 # Worker function to multiply a table column by the ratio
-RatioTimesColumn = function(col, ratio) {
+.RatioTimesColumn = function(col, ratio) {
   
   return(col * ratio)
 }
 
 # Worker function to add calculated step to crafting tree table
-AddToCraftingTree = function(CRAFTING_TREE, row) {
+.AddToCraftingTree = function(CRAFTING_TREE, row) {
   
   return(CRAFTING_TREE %>% add_row(row))
 }

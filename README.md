@@ -7,7 +7,7 @@ I hope the name is self-explanatory enough.
 
 * `shiny`
 * `tidyverse`
-* `igraph`
+* `igraph`/`visNetwork`?
 
 ## Style:
 
