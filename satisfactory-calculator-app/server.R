@@ -1,133 +1,186 @@
 
+# -----------------------------------------------------------------------------
 server <- function(input, output, session) {
   
+  # Search Bar Item Selector
   output$item_filter = renderUI({
     
+    # Find all item names available in provided data
     unique_item_names = RECIPES %>% 
                         select(product) %>%
                         arrange(product) %>%
-                        unique()
+                        unique() %>%
+                        pull()
     
-    selectInput(inputId='item_filter', 
-                label='Select Item',
-                choices=unique_item_names)
+    # Use found items in dropdown
+    return(
+      selectInput(
+        inputId = 'item_filter', 
+        label = 'Select Item to start Crafting Tree',
+        choices = unique_item_names
+      )
+    )
   })
   
+  # Search Bar Recipe Selector
   output$recipe_filter = renderUI({
     
+    # Find all available recipes for the selected item
     unique_recipe_names = RECIPES %>%
-                          filter(product == input$item_filter) %>%
-                          select(recipe) %>%
-                          arrange(recipe)
+                            filter(
+                              product == input$item_filter
+                            ) %>%
+                            select(recipe) %>%
+                            arrange(recipe)
     
-    # If only one recipe to make the item, don't show dropdown
-    if (count(unique_recipe_names) <= 1){
+    # Prevent returning "recipe" when there is only one recipe for item
+    if(count(unique_recipe_names) <= 1) {
       
-      unique_recipe_names = unique_recipe_names$recipe[[1]]
+      unique_recipe_names = unique_recipe_names$recipe[1]
     }
     
-    # Define the selectInput
-    selectInput(inputId='recipe_filter', 
-                label='Select Recipe', 
-                choices=unique_recipe_names)
+    # Use found recipes in dropdown
+    return(
+      selectInput(
+        inputId = 'recipe_filter', 
+        label = 'Select Recipe for Selected Item', 
+        choices = unique_recipe_names
+      )
+    )
   })
   
+  # Search Bar Table Viewer
   output$recipes_table = renderTable({
     
+    # Select crafting-relevant columns from data
     unique_recipe_names = RECIPES %>%
-                          select(recipe, 
-                                  input_1, input_rate_1, 
-                                  input_2, input_rate_2, 
-                                  input_3, input_rate_3, 
-                                  input_4, input_rate_4, 
-                                  building, 
-                                  product, product_rate, 
-                                  byproduct, byproduct_rate) %>%
-                          filter(product == input$item_filter) %>%
-                          arrange(recipe)
+                            select(
+                              recipe, 
+                              input_1, input_rate_1, 
+                              input_2, input_rate_2, 
+                              input_3, input_rate_3, 
+                              input_4, input_rate_4, 
+                              building, 
+                              product, product_rate, 
+                              byproduct, byproduct_rate
+                            ) %>%
+                            filter(product == input$item_filter) %>%
+                            arrange(recipe)
   })
   
+  # Search Bar Start Crafting Button
   observeEvent(input$crafting_start, {
     
-    CRAFTING_TREE = add_crafting_step_to_tree(input$item_filter, input$recipe_filter, 
-                                              input$item_quantity, CRAFTING_TREE)
+    # Add user's final selection to Crafting Table
+    CRAFTING_TREE = AddCraftingStepToTree(input$item_filter, 
+                                          input$recipe_filter, 
+                                          input$item_quantity, 
+                                          CRAFTING_TREE)
     
+    # Update the Crafting Table with user's final selection
     output$crafting_table = renderTable({
       
-      CRAFTING_TREE
+      return(CRAFTING_TREE)
     })
     
-    all_inputs_from_crafting = gather_inputs(CRAFTING_TREE)
+    # Gather all inputs from the Crafting Table into list
+    all_inputs_from_crafting = GatherInputs(CRAFTING_TREE)
     
+    # 
     all_inputs_from_crafting = all_inputs_from_crafting %>%
-      inner_join(ITEMS, by=c("total_inputs"="item")) %>%
-      filter(is_raw==FALSE)
+                                inner_join(
+                                  ITEMS, 
+                                  by = c('total_inputs' = 'item')
+                                ) %>%
+                                filter(is_raw == FALSE)
     
     total_inputs_from_crafting = all_inputs_from_crafting$total_inputs
     
-    output$dropdown_1 = renderUI({
+    # 
+    output$input_filter = renderUI({
       
-      selectInput(inputId='dropdown_1',
-                  label='Select Recipe',
-                  choices=total_inputs_from_crafting)
+      return(
+        selectInput(inputId = 'input_filter',
+                    label = 'Select Input to Configure',
+                    choices = total_inputs_from_crafting)
+      )
     })
     
-    output$dropdown_2 = renderUI({
+    # Update Crafting Tree Input Selector
+    output$recipe_for_input = renderUI({
       
       recipes_from_total_inputs_crafting = RECIPES %>%
-                                            filter(product==input$dropdown_1) %>%
+                                            filter(
+                                              product == input$input_filter
+                                            ) %>%
                                             select(recipe) %>%
-                                            arrange(recipe)
+                                            arrange(recipe) %>%
+                                            pull()
       
-      # Define the selectInput
-      selectInput(inputId='dropdown_2', 
-                  label='Select Recipe', 
-                  choices=recipes_from_total_inputs_crafting)
+      return(
+        selectInput(inputId = 'recipe_for_input', 
+                    label = 'Select Recipe for Selected Input', 
+                    choices = recipes_from_total_inputs_crafting)
+      )
     })
   })
-  
-  output$dropdown_1 = renderUI({
+
+# -----------------------------------------------------------------------------
+  # Crafting Tree Input Selector default
+  output$input_filter = renderUI({
     
-    # Define the selectInput
-    selectInput(inputId='dropdown_1',
-                label='Select Input',
-                choices=character(0))
+    return(
+      selectInput(inputId = 'input_filter',
+                  label = 'Select Input Item to Configure',
+                  choices = NULL)
+    )
   })
   
-  output$dropdown_2 = renderUI({
+  # Recipe Selector for Selected Input default
+  output$recipe_for_input = renderUI({
     
-    # Define the selectInput
-    selectInput(inputId='dropdown_2',
-                label='Select Recipe',
-                choices=character(0))
+    return(
+      selectInput(inputId = 'recipe_for_input',
+                  label = 'Select Recipe for Input Item',
+                  choices = NULL)
+    )
   })
   
+  # When clearing the Crafting Tree
   observeEvent(input$crafting_clear, {
     
+    # Clear table using the empty template
     output$crafting_table = renderTable({
       
-      crafting_tree_table = CRAFTING_TEMPLATE
+      return(CRAFTING_TEMPLATE)
     })
     
-    output$dropdown_1 = renderUI({
+    # Clear input filter
+    output$input_filter = renderUI({
       
-      # Define the selectInput
-      selectInput(inputId='dropdown_1',
-                  label='Select Input',
-                  choices=character(0))
+      # Set choices to NULL to clear them
+      return(
+        selectInput(inputId = 'input_filter',
+                    label = 'Select Input Item to Configure',
+                    choices = NULL)
+      )
     })
     
-    output$dropdown_2 = renderUI({
+    # Clear recipe filter
+    output$recipe_for_input = renderUI({
       
-      # Define the selectInput
-      selectInput(inputId='dropdown_2',
-                  label='Select Recipe',
-                  choices=character(0))
+      # Set choices to NULL to clear them
+      return(
+        selectInput(inputId = 'recipe_for_input',
+                    label = 'Select Recipe for Input Item',
+                    choices = NULL)
+      )
     })
   })
   
+  # Crafting Table default
   output$crafting_table = renderTable({
     
-    crafting_tree_table = CRAFTING_TEMPLATE
+    return(CRAFTING_TREE)
   })
 }
