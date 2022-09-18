@@ -8,3 +8,8 @@ I hope the name is self-explanatory enough.
 * `shiny`
 * `tidyverse`
 * `igraph`
+
+## Style 
+
+* [Google Style Guide](https://google.github.io/styleguide/Rguide.html)
+* [Hadley Wickham's Style Guide](https://style.tidyverse.org/index.html)
