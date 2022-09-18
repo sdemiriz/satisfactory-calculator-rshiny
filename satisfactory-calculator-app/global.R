@@ -115,7 +115,9 @@ GatherByproducts = function(CRAFTING_TREE) {
                   )
     
     # Add to the final table to be returned, remove NAs if present
-    total_table = total_table %>% add_row(to_append) %>% drop_na()
+    total_table = total_table %>% 
+                  add_row(to_append) %>% 
+                  drop_na()
     
     # Group by item name and sum all rates for each item
     total_table = .GetPerItemRates(total_table, str_col, str_col_rate)
