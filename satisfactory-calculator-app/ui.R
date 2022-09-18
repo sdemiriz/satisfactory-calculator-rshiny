@@ -6,14 +6,14 @@ ui <- fluidPage(
   fluidRow(
     
     # Full screen width row
-    column(full_panel_width, h1("Calculator"))
+    column(full_screen_width, h1("Calculator"))
   ),
   
   # Row 2: Search and Crafting Tree setup sections
   fluidRow(
 
     # Subtitle for section    
-    column(full_panel_width, h3('Search for Recipes')),
+    column(full_screen_width, h3('Search for Recipes')),
     
     # Small part of the screen width
     column(side_panel_width,
@@ -50,7 +50,7 @@ ui <- fluidPage(
   fluidRow(
     
     # Subtitle for section
-    column(full_panel_width, h3('Complete the Crafting Tree')),
+    column(full_screen_width, h3('Complete the Crafting Tree')),
     
     # Small part of screen width is take up by the recipe selector
     column(side_panel_width,
