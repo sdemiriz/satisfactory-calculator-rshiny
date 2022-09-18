@@ -1,66 +1,70 @@
 
+# Front-end definition
 ui <- fluidPage(
   
+  # Row 1: Title
   fluidRow(
     
-    column(full_panel_width,
-           
-      titlePanel("Calculator")
-    )
+    # Full screen width row
+    column(full_panel_width, titlePanel("Calculator"))
   ),
   
-  # Item, recipe, quantity selector panel
+  # Row 2: Search and Crafting Tree setup sections
   fluidRow(
     
+    # Small part of the screen width
     column(side_panel_width,
-           
+      
+      # Make input fields appear grouped    
       wellPanel(
              
-        # Item filter
+        # Search bar item filter
         uiOutput('item_filter'),
         
-        # Recipe filter
+        # Search bar recipe filter
         uiOutput('recipe_filter'),
         
-        # Amount of selected item to produce using the selected recipe
+        # Search bar quantity selector
         numericInput(inputId='item_quantity',
                       label='Quantity',
                       value=10),
         
+        # Button to add selected item, recipe, quantity to crafting section
         actionButton(inputId='crafting_start', 
                       label='Begin crafting tree'),
         
+        # Button to clear crafting section, and its input fields
         actionButton(inputId='crafting_clear', 
                       label='Clear crafting tree')
      )
   ),
     
-    column(main_panel_width,
-           
-      tableOutput('recipes_table')
-    )
+    # Remaining width of screen houses the "Search Results" table
+    column(main_panel_width, tableOutput('recipes_table'))
   ),
   
-  # Crafting table
+  # Row 3: Crafting Tree and its sidebar
   fluidRow(
     
+    # Small part of screen width is take up by the recipe selector
     column(side_panel_width,
            
+      # Make recipe selector fields appear grouped
       wellPanel(
       
-      uiOutput('dropdown_1'),
-      
-      uiOutput('dropdown_2'),
-      
-      actionButton(inputId='button_1',
-                    label='Confirm selections')
+        # Item selector for Crafting Tree
+        uiOutput('dropdown_1'),
+        
+        # Recipe selector for Crafting Tree
+        uiOutput('dropdown_2'),
+        
+        # Confirm adding the item, recipe to Crafting Tree
+        actionButton(inputId='button_1',
+                      label='Confirm selections')
       )
     ),
     
-    column(main_panel_width,
-           
-      # Maybe have a bar with buttons for all the functions?
-      tableOutput('crafting_table')
-    )
+    # Remainin with of the screen houses the "Crafting Tree" table
+    column(main_panel_width, tableOutput('crafting_table'))
   )
 )
