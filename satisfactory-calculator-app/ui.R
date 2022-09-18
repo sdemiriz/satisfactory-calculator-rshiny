@@ -28,17 +28,17 @@ ui <- fluidPage(
         uiOutput('recipe_filter'),
         
         # Search bar quantity selector
-        numericInput(inputId='item_quantity',
-                      label='Quantity',
-                      value=10),
+        numericInput(inputId = 'item_quantity',
+                      label = 'Select Quantity of Item',
+                      value = 10),
         
         # Button to add selected item, recipe, quantity to crafting section
-        actionButton(inputId='crafting_start', 
-                      label='Begin crafting tree'),
+        actionButton(inputId = 'crafting_start', 
+                      label = 'Begin crafting tree'),
         
         # Button to clear crafting section, and its input fields
-        actionButton(inputId='crafting_clear', 
-                      label='Clear crafting tree')
+        actionButton(inputId = 'crafting_clear', 
+                      label = 'Clear crafting tree')
      )
   ),
     
@@ -50,7 +50,7 @@ ui <- fluidPage(
   fluidRow(
     
     # Subtitle for section
-    column(full_screen_width, h3('Complete the Crafting Tree')),
+    column(full_screen_width, h3('Complete Crafting Tree')),
     
     # Small part of screen width is take up by the recipe selector
     column(side_panel_width,
@@ -59,14 +59,14 @@ ui <- fluidPage(
       wellPanel(
       
         # Item selector for Crafting Tree
-        uiOutput('dropdown_1'),
+        uiOutput('input_filter'),
         
         # Recipe selector for Crafting Tree
-        uiOutput('dropdown_2'),
+        uiOutput('recipe_for_input'),
         
         # Confirm adding the item, recipe to Crafting Tree
-        actionButton(inputId='button_1',
-                      label='Confirm selections')
+        actionButton(inputId = 'button_1',
+                      label = 'Confirm selections')
       )
     ),
     
