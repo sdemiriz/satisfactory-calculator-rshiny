@@ -9,7 +9,7 @@ I hope the name is self-explanatory enough.
 * `tidyverse`
 * `igraph`
 
-## Style 
+## Style:
 
 * [Google Style Guide](https://google.github.io/styleguide/Rguide.html)
 * [Hadley Wickham's Style Guide](https://style.tidyverse.org/index.html)
