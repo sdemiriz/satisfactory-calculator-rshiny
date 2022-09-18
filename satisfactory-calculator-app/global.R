@@ -1,67 +1,83 @@
-full_panel_width = 12
+# -----------------------------------------------------------------------------
+# Screen-width utilization configuration
+full_screen_width = 12
 side_panel_width = 3
-main_panel_width = full_panel_width - side_panel_width
+main_panel_width = full_screen_width - side_panel_width
 
+# -----------------------------------------------------------------------------
+# Import a .csv file as tibbles from a specified directory
 import_as_tibble = function(path_to_table, table_name){
   
   # Assemble full path for table
   full_path = paste0(path_to_table, table_name)
   
-  # Import .csv with header row from specified directory
+  # Import .csv from full path
   return(as_tibble(read.csv(full_path, header = TRUE)))
 }
 
-recipes_add_forward_rates = function(recipes_tibble){
+# Define root folder
+root_dir = '../data/'
+
+# Import recipes, items, buildings tables
+RECIPES = import_as_tibble(root_dir, 'recipes.csv')
+ITEMS = import_as_tibble(root_dir, 'items.csv')
+BUILDINGS = import_as_tibble(root_dir, 'buildings.csv')
+
+# -----------------------------------------------------------------------------
+# Add and populate columns for each of the 4 forward ratios
+add_forward_ratios = function(recipes_tibble){
   
-  # Add columns for [input_rate_{1,2,3,4} / output_rate]
+  # Add and populate columns for each of the 4 forward ratios
   recipes_tibble = recipes_tibble %>% 
-    mutate(forward_ratio_1 = input_rate_1/product_rate,
-           forward_ratio_2 = input_rate_2/product_rate,
-           forward_ratio_3 = input_rate_3/product_rate,
-           forward_ratio_4 = input_rate_4/product_rate)
+                    mutate(forward_ratio_1 = input_rate_1/product_rate,
+                           forward_ratio_2 = input_rate_2/product_rate,
+                           forward_ratio_3 = input_rate_3/product_rate,
+                           forward_ratio_4 = input_rate_4/product_rate)
   
   return(recipes_tibble)
 }
 
-recipes_add_reverse_rates = function(recipes_tibble){
+# Add and populate columns for each of the 4 reverse ratios
+add_reverse_ratios = function(recipes_tibble){
   
-  # Add columns for [output_rate / input_rate_{1,2,3,4}]
   recipes_tibble = recipes_tibble %>%
-    mutate(reverse_ratio_1 = product_rate/input_rate_1,
-           reverse_ratio_2 = product_rate/input_rate_2,
-           reverse_ratio_3 = product_rate/input_rate_3,
-           reverse_ratio_4 = product_rate/input_rate_4)
+                    mutate(reverse_ratio_1 = product_rate/input_rate_1,
+                           reverse_ratio_2 = product_rate/input_rate_2,
+                           reverse_ratio_3 = product_rate/input_rate_3,
+                           reverse_ratio_4 = product_rate/input_rate_4)
   
   return(recipes_tibble)
 }
 
+# Add column to signify if recipe has a byproduct
 recipes_add_has_byproduct = function(recipes_tibble){
   
-  # Add bool column to check if recipe has a byproduct
   recipes_tibble = recipes_tibble %>%
-    mutate(has_byproduct = !is.na(byproduct_rate))
+                    mutate(has_byproduct = !is.na(byproduct_rate))
   
   return(recipes_tibble)
 }
 
+# -----------------------------------------------------------------------------
+# Call generic function to return the content of input columns
 gather_inputs = function(CRAFTING_TREE) {
   
-  # Call generic function to return the content of input columns
   return(gather_columns(CRAFTING_TREE, 'input'))
 }
 
+# Call generic function to return the content of the product column
 gather_products = function(CRAFTING_TREE) {
-  
-  # Call generic function to return the content of the product column
+
   return(gather_columns(CRAFTING_TREE, 'product'))
 }
 
+# Call generic function to return the content of the byproduct column
 gather_byproducts = function(CRAFTING_TREE) {
   
-  # Call generic function to return the content of the byproduct column
   return(gather_columns(CRAFTING_TREE, 'byproduct'))
 }
 
+# Generic function to return contents of column(s) as one
 gather_columns = function(CRAFTING_TREE, col_type) {
   
   # Use specified column type for future columns names
@@ -119,6 +135,7 @@ gather_columns = function(CRAFTING_TREE, col_type) {
   return(total_table)
 }
 
+# Worker function to group tables by item name and sum rates
 get_per_item_rates = function(table, grp_by, grp) {
   
   table = table %>%
@@ -128,20 +145,22 @@ get_per_item_rates = function(table, grp_by, grp) {
   return(table)
 }
 
+# -----------------------------------------------------------------------------
+# Add calculated crafting step to the crafting tree table
 add_crafting_step_to_tree = function(item_filter, recipe_filter, quantity, CRAFTING_TREE) {
   
   # Query all available recipes for user selection via parameters
   recipe_row = RECIPES %>%
-    filter(product == item_filter,
-           recipe == recipe_filter) %>%
-    select(recipe, 
-           input_1, input_rate_1,
-           input_2, input_rate_2,
-           input_3, input_rate_3,
-           input_4, input_rate_4,
-           building,
-           product, product_rate,
-           byproduct, byproduct_rate)
+                filter(product == item_filter,
+                       recipe == recipe_filter) %>%
+                select(recipe, 
+                       input_1, input_rate_1,
+                       input_2, input_rate_2,
+                       input_3, input_rate_3,
+                       input_4, input_rate_4,
+                       building,
+                       product, product_rate,
+                       byproduct, byproduct_rate)
   
   # Calculate the ratio (how many times the recipe is to be used for the step)
   ratio = calc_ratio(quantity, recipe_row$product_rate)
@@ -161,36 +180,29 @@ add_crafting_step_to_tree = function(item_filter, recipe_filter, quantity, CRAFT
   return(CRAFTING_TREE)
 }
 
-# Divide user-desired rate by recipe rate from table
+# Worker function to divide user-desired rate by recipe rate from table
 calc_ratio = function(desired_rate, recipe_rate) {
   
   return(desired_rate / recipe_rate)
 }
 
-# Divide user-desired rate by recipe rate from table
+# Worker function to multiply a table column by the ratio
 ratio_x_col = function(col, ratio) {
   
   return(col * ratio)
 }
 
-# Add calculated step to crafting tree table
+# Worker function to add calculated step to crafting tree table
 add_to_crafting_tree = function(CRAFTING_TREE, row) {
   
   return(CRAFTING_TREE %>% add_row(row))
 }
 
-# Define root folder
-root_dir = '../data/'
-
-# Import recipes, items, buildings tables
-RECIPES = import_as_tibble(root_dir, 'recipes.csv')
-ITEMS = import_as_tibble(root_dir, 'items.csv')
-BUILDINGS = import_as_tibble(root_dir, 'buildings.csv')
-
+# -----------------------------------------------------------------------------
 # Recipes table pre-processing
 # Add forward, reverse rates
-RECIPES = recipes_add_forward_rates(RECIPES)
-RECIPES = recipes_add_reverse_rates(RECIPES)
+RECIPES = add_forward_ratios(RECIPES)
+RECIPES = add_reverse_ratios(RECIPES)
 
 # Add bool column for presence/absence of byproducts of the recipe
 RECIPES = recipes_add_has_byproduct(RECIPES)
