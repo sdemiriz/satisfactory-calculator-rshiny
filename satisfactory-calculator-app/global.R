@@ -1,8 +1,8 @@
 # -----------------------------------------------------------------------------
 # Screen-width utilization configuration
-full_screen_width = 12
-side_panel_width = 3
-main_panel_width = full_screen_width - side_panel_width
+FULL_SCREEN_WIDTH = 12
+SIDE_PANEL_WIDTH = 3
+MAIN_PANEL_WIDTH = FULL_SCREEN_WIDTH - SIDE_PANEL_WIDTH
 
 # -----------------------------------------------------------------------------
 # Import a .csv file as tibbles from a specified directory
@@ -94,7 +94,8 @@ GatherByproducts = function(CRAFTING_TREE) {
   str_col_rate = paste0('total_', col_type, '_rates')
   
   # Generate table to return at the end with appropriate columns
-  total_table = tibble({{str_col}}:=character(), {{str_col_rate}}:=numeric())
+  total_table = tibble({{ str_col }}:=character(), 
+                       {{ str_col_rate }}:=numeric())
   
   # If single columns are requested
   if(col_type == 'product' | col_type == 'byproduct') {
@@ -106,12 +107,12 @@ GatherByproducts = function(CRAFTING_TREE) {
     # Select the mimicked columns and rename them to local names generated at the start
     to_append = CRAFTING_TREE %>% 
                   select(
-                    {{str_col_tree}}, 
-                    {{str_col_rate_tree}}
+                    {{ str_col_tree }}, 
+                    {{ str_col_rate_tree }}
                   ) %>%
                   rename(
-                    {{str_col}}:={{str_col_tree}}, 
-                    {{str_col_rate}}:={{str_col_rate_tree}}
+                    {{ str_col }}:={{ str_col_tree }}, 
+                    {{ str_col_rate }}:={{ str_col_rate_tree }}
                   )
     
     # Add to the final table to be returned, remove NAs if present
@@ -135,12 +136,12 @@ GatherByproducts = function(CRAFTING_TREE) {
       # Select the mimicked columns and rename them to local names generated at the start
       to_append = CRAFTING_TREE %>%
                     select(
-                      {{str_col_i}}, 
-                      {{str_col_rate_i}}
+                      {{ str_col_i }}, 
+                      {{ str_col_rate_i }}
                     ) %>%
                     rename(
-                      {{str_col}}:={{str_col_i}}, 
-                      {{str_col_rate}}:={{str_col_rate_i}}
+                      {{ str_col }}:={{ str_col_i }}, 
+                      {{ str_col_rate }}:={{ str_col_rate_i }}
                     )
       
       # Add to the final table to be returned, remove NAs if present
@@ -150,7 +151,6 @@ GatherByproducts = function(CRAFTING_TREE) {
       
       # Group by item name and sum all rates for each item
       total_table = .GetPerItemRates(total_table, str_col, str_col_rate)
-      
     }
   }
   
@@ -158,13 +158,11 @@ GatherByproducts = function(CRAFTING_TREE) {
 }
 
 # Worker function to group tables by item name and sum rates
-.GetPerItemRates = function(table, 
-                              grp_by, 
-                              grp) {
+.GetPerItemRates = function(table, grp_by, grp) {
   
   table = table %>%
     group_by(.data[[grp_by]]) %>%
-    summarise({{grp}}:=sum(.data[[grp]]))
+    summarise({{ grp }}:=sum(.data[[grp]]))
   
   return(table)
 }

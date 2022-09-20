@@ -7,10 +7,10 @@ server <- function(input, output, session) {
     
     # Find all item names available in provided data
     unique_item_names = RECIPES %>% 
-                        select(product) %>%
-                        arrange(product) %>%
-                        unique() %>%
-                        pull()
+                          select(product) %>%
+                          arrange(product) %>%
+                          unique() %>%
+                          pull()
     
     # Use found items in dropdown
     return(

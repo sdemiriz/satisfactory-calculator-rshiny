@@ -6,17 +6,17 @@ ui <- fluidPage(
   fluidRow(
     
     # Full screen width row
-    column(full_screen_width, h1("Calculator"))
+    column(FULL_SCREEN_WIDTH, h1("Calculator"))
   ),
   
   # Row 2: Search and Crafting Tree setup sections
   fluidRow(
 
     # Subtitle for section    
-    column(full_screen_width, h3('Search for Recipes')),
+    column(FULL_SCREEN_WIDTH, h3('Search for Recipes')),
     
     # Small part of the screen width
-    column(side_panel_width,
+    column(SIDE_PANEL_WIDTH,
       
       # Make input fields appear grouped    
       wellPanel(
@@ -43,17 +43,17 @@ ui <- fluidPage(
   ),
     
     # Remaining width of screen houses the "Search Results" table
-    column(main_panel_width, tableOutput('recipes_table'))
+    column(MAIN_PANEL_WIDTH, tableOutput('recipes_table'))
   ),
   
   # Row 3: Crafting Tree and its sidebar
   fluidRow(
     
     # Subtitle for section
-    column(full_screen_width, h3('Complete Crafting Tree')),
+    column(FULL_SCREEN_WIDTH, h3('Complete Crafting Tree')),
     
     # Small part of screen width is take up by the recipe selector
-    column(side_panel_width,
+    column(SIDE_PANEL_WIDTH,
            
       # Make recipe selector fields appear grouped
       wellPanel(
@@ -71,6 +71,6 @@ ui <- fluidPage(
     ),
     
     # Remainin with of the screen houses the "Crafting Tree" table
-    column(main_panel_width, tableOutput('crafting_table'))
+    column(MAIN_PANEL_WIDTH, tableOutput('crafting_table'))
   )
 )
