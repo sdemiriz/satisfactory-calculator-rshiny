@@ -70,7 +70,7 @@ ui <- fluidPage(
       )
     ),
     
-    # Remainin with of the screen houses the "Crafting Tree" table
+    # Remaining width of the screen houses the "Crafting Tree" table
     column(MAIN_PANEL_WIDTH, tableOutput('crafting_table'))
   )
 )
