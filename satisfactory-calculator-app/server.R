@@ -87,14 +87,14 @@ server <- function(input, output, session) {
     all_inputs_from_crafting = GatherInputs(CRAFTING_TREE)
     
     # 
-    all_inputs_from_crafting = all_inputs_from_crafting %>%
+    ALL_INPUTS_FROM_CRAFTING <<- all_inputs_from_crafting %>%
                                 inner_join(
                                   ITEMS, 
                                   by = c('total_inputs' = 'item')
                                 ) %>%
                                 filter(is_raw == FALSE)
     
-    total_inputs_from_crafting = all_inputs_from_crafting$total_inputs
+    TOTAL_INPUTS_FROM_CRAFTING <<- ALL_INPUTS_FROM_CRAFTING$total_inputs
     
     # 
     output$input_filter = renderUI({
@@ -102,7 +102,7 @@ server <- function(input, output, session) {
       return(
         selectInput(inputId = 'input_filter',
                     label = 'Select Input to Configure',
-                    choices = total_inputs_from_crafting)
+                    choices = TOTAL_INPUTS_FROM_CRAFTING)
       )
     })
     
@@ -152,7 +152,8 @@ server <- function(input, output, session) {
     # Clear table using the empty template
     output$crafting_table = renderTable({
       
-      return(CRAFTING_TEMPLATE)
+      CRAFTING_TREE <<- CRAFTING_TEMPLATE
+      return(CRAFTING_TREE)
     })
     
     # Clear input filter
@@ -182,5 +183,62 @@ server <- function(input, output, session) {
   output$crafting_table = renderTable({
     
     return(CRAFTING_TREE)
+  })
+  
+  observeEvent(input$button_1, {
+    
+    # Find the selected recipe from all recipes
+    recipe = RECIPES %>% 
+              filter(
+                product == input$input_filter,
+                recipe == input$recipe_for_input
+              )
+    
+    # Get production rate required from Crafting Tree
+    calculated_quantity = ALL_INPUTS_FROM_CRAFTING %>%
+                            filter(total_inputs == input$input_filter) %>%
+                            select(total_input_rates) %>%
+                            pull()
+    
+    # Add input, recipe and quantity as new step to Crafting Tree
+    CRAFTING_TREE <<- AddCraftingStepToTree(input$input_filter,
+                                            input$recipe_for_input,
+                                            calculated_quantity,
+                                            CRAFTING_TREE)
+    
+    # Remove selected recipe from all derived inputs
+    # TODO: Automate this by subtracting products from inputs
+    ALL_INPUTS_FROM_CRAFTING <<- ALL_INPUTS_FROM_CRAFTING %>% 
+                                  filter(
+                                    total_inputs != input$input_filter
+                                  )
+    
+    # Update Crafting Table on screen
+    output$crafting_table = renderTable({
+      
+      return(CRAFTING_TREE)
+    })
+    
+    # Gather all inputs from the Crafting Table into list
+    all_inputs_from_crafting = GatherInputs(CRAFTING_TREE)
+    
+    # Rejoin
+    ALL_INPUTS_FROM_CRAFTING <<- ALL_INPUTS_FROM_CRAFTING %>%
+      inner_join(
+        ITEMS, 
+        by = c('total_inputs' = 'item')
+      )
+    
+    TOTAL_INPUTS_FROM_CRAFTING <<- ALL_INPUTS_FROM_CRAFTING$total_inputs
+    
+    # Update the list in input filter
+    output$input_filter = renderUI({
+      
+      return(
+        selectInput(inputId = 'input_filter',
+                    label = 'Select Input to Configure',
+                    choices = TOTAL_INPUTS_FROM_CRAFTING)
+      )
+    })
   })
 }
