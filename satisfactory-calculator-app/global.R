@@ -204,7 +204,7 @@ AddCraftingStepToTree = function(item_filter,
   recipe_row$input_rate_4 = .RatioTimesColumn(recipe_row$input_rate_4, ratio)
   
   # Add ratio-multiplied row as step to crafting tree
-  CRAFTING_TREE = .AddToCraftingTree(CRAFTING_TREE, recipe_row)
+  CRAFTING_TREE = .AddRowToCraftingTree(CRAFTING_TREE, recipe_row)
   
   return(CRAFTING_TREE)
 }
@@ -222,7 +222,7 @@ AddCraftingStepToTree = function(item_filter,
 }
 
 # Worker function to add calculated step to crafting tree table
-.AddToCraftingTree = function(CRAFTING_TREE, row) {
+.AddRowToCraftingTree = function(CRAFTING_TREE, row) {
   
   return(CRAFTING_TREE %>% add_row(row))
 }
@@ -248,3 +248,7 @@ CRAFTING_TEMPLATE = tibble(recipe=character(),
 
 # Make a copy of the template for use
 CRAFTING_TREE = CRAFTING_TEMPLATE
+
+# 
+ALL_INPUTS_FROM_CRAFTING = c()
+TOTAL_INPUTS_FROM_CRAFTING = c()
