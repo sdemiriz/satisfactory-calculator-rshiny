@@ -2,6 +2,37 @@
 # -----------------------------------------------------------------------------
 server <- function(input, output, session) {
   
+  # Define root folder
+  root_dir = '../data/'
+  
+  # Import recipes, items, buildings tables
+  RECIPES = ImportAsTibble(root_dir, 'recipes.csv')
+  ITEMS = ImportAsTibble(root_dir, 'items.csv')
+  BUILDINGS = ImportAsTibble(root_dir, 'buildings.csv')
+  
+  # Recipes table pre-processing
+  # Add forward, reverse rates
+  RECIPES = AddForwardRatios(RECIPES)
+  RECIPES = AddReverseRatios(RECIPES)
+  
+  # Add bool column for presence/absence of byproducts of the recipe
+  RECIPES = AddHasByproduct(RECIPES)
+  
+  # Initialize a tibble for the crafting chain
+  CRAFTING_TEMPLATE = tibble(
+                        recipe=character(),
+                        input_1=character(), input_rate_1=numeric(),
+                        input_2=character(), input_rate_2=numeric(),
+                        input_3=character(), input_rate_3=numeric(),
+                        input_4=character(), input_rate_4=numeric(),
+                        building=character(),
+                        product=character(), product_rate=numeric(),
+                        byproduct=character(), byproduct_rate=numeric()
+                       )
+  
+  # Make a copy of the template for use
+  CRAFTING_TREE = CRAFTING_TEMPLATE
+  
   # Search Bar Item Selector
   output$item_filter = renderUI({
     
@@ -72,7 +103,7 @@ server <- function(input, output, session) {
   observeEvent(input$crafting_start, {
     
     # Add user's final selection to Crafting Table
-    CRAFTING_TREE = AddCraftingStepToTree(input$item_filter, 
+    CRAFTING_TREE <<- AddCraftingStepToTree(input$item_filter, 
                                           input$recipe_filter, 
                                           input$item_quantity, 
                                           CRAFTING_TREE)
@@ -84,19 +115,18 @@ server <- function(input, output, session) {
     })
     
     # Gather all inputs from the Crafting Table into list
-    all_inputs_from_crafting = GatherInputs(CRAFTING_TREE)
+    ALL_INPUTS_FROM_CRAFTING <<- GatherInputs(CRAFTING_TREE)
     
     # 
-    ALL_INPUTS_FROM_CRAFTING <<- all_inputs_from_crafting %>%
+    ALL_INPUTS_FROM_CRAFTING = ALL_INPUTS_FROM_CRAFTING %>%
                                 inner_join(
                                   ITEMS, 
                                   by = c('total_inputs' = 'item')
                                 ) %>%
                                 filter(is_raw == FALSE)
     
-    TOTAL_INPUTS_FROM_CRAFTING <<- ALL_INPUTS_FROM_CRAFTING$total_inputs
+    TOTAL_INPUTS_FROM_CRAFTING = ALL_INPUTS_FROM_CRAFTING$total_inputs
     
-    # 
     output$input_filter = renderUI({
       
       return(
@@ -187,49 +217,50 @@ server <- function(input, output, session) {
   
   observeEvent(input$button_1, {
     
-    # Find the selected recipe from all recipes
-    recipe = RECIPES %>% 
-              filter(
-                product == input$input_filter,
-                recipe == input$recipe_for_input
-              )
+    # PLAN:
+    # 1. Filter RECIPES on selected item+recipe
+    # 2. Retrieve the appropriate crafting rate from Crafting Tree
+    # 3. Add new step to Crafting Tree with item+recipe+rate
+    # 4. Remove selected item+recipe from options in input_filter+recipe_for_input
+    # 5. Update input_filter+recipe_for_input dropdown lists looks
+    # 6. Update table looks
+    
+    # Gather all inputs from the Crafting Table into list
+    all_inputs_from_crafting = GatherInputs(CRAFTING_TREE)
     
     # Get production rate required from Crafting Tree
-    calculated_quantity = ALL_INPUTS_FROM_CRAFTING %>%
+    calculated_quantity = all_inputs_from_crafting %>%
                             filter(total_inputs == input$input_filter) %>%
                             select(total_input_rates) %>%
                             pull()
+      
+    all_inputs_from_crafting = all_inputs_from_crafting %>%
+                                  inner_join(
+                                    ITEMS,
+                                    by = c('total_inputs' = 'item')
+                                  )
     
     # Add input, recipe and quantity as new step to Crafting Tree
     CRAFTING_TREE <<- AddCraftingStepToTree(input$input_filter,
                                             input$recipe_for_input,
                                             calculated_quantity,
                                             CRAFTING_TREE)
-    
-    # Remove selected recipe from all derived inputs
-    # TODO: Automate this by subtracting products from inputs
-    ALL_INPUTS_FROM_CRAFTING <<- ALL_INPUTS_FROM_CRAFTING %>% 
-                                  filter(
-                                    total_inputs != input$input_filter
-                                  )
-    
+      
     # Update Crafting Table on screen
     output$crafting_table = renderTable({
       
       return(CRAFTING_TREE)
     })
     
-    # Gather all inputs from the Crafting Table into list
-    all_inputs_from_crafting = GatherInputs(CRAFTING_TREE)
+    net_items = NetProduction(CRAFTING_TREE)
     
-    # Rejoin
-    ALL_INPUTS_FROM_CRAFTING <<- ALL_INPUTS_FROM_CRAFTING %>%
-      inner_join(
-        ITEMS, 
-        by = c('total_inputs' = 'item')
-      )
-    
-    TOTAL_INPUTS_FROM_CRAFTING <<- ALL_INPUTS_FROM_CRAFTING$total_inputs
+    # Remove selected recipe from all derived inputs
+    # all_inputs_from_crafting = all_inputs_from_crafting %>%
+    #                             filter(
+    #                               total_inputs != input$input_filter
+    #                             )
+    # 
+    # total_inputs_from_crafting = all_inputs_from_crafting$total_inputs
     
     # Update the list in input filter
     output$input_filter = renderUI({
@@ -237,7 +268,7 @@ server <- function(input, output, session) {
       return(
         selectInput(inputId = 'input_filter',
                     label = 'Select Input to Configure',
-                    choices = TOTAL_INPUTS_FROM_CRAFTING)
+                    choices = net_items)
       )
     })
   })
