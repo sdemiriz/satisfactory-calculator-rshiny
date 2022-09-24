@@ -1,8 +1,5 @@
-# -----------------------------------------------------------------------------
-# Screen-width utilization configuration
-FULL_SCREEN_WIDTH = 12
-SIDE_PANEL_WIDTH = 3
-MAIN_PANEL_WIDTH = FULL_SCREEN_WIDTH - SIDE_PANEL_WIDTH
+library(tidyverse)
+library(shiny)
 
 # -----------------------------------------------------------------------------
 # Import a .csv file as tibbles from a specified directory
@@ -11,20 +8,14 @@ ImportAsTibble = function(path_to_table, table_name) {
   # Assemble full path for table
   full_path = paste0(path_to_table, table_name)
   
+  print(getwd())
+  
   # Read the file
   csv_file = read.csv(full_path, header = TRUE)
   
   # Return as tibble
   return(as_tibble(csv_file))
 }
-
-# Define root folder
-root_dir = '../data/'
-
-# Import recipes, items, buildings tables
-RECIPES = ImportAsTibble(root_dir, 'recipes.csv')
-ITEMS = ImportAsTibble(root_dir, 'items.csv')
-BUILDINGS = ImportAsTibble(root_dir, 'buildings.csv')
 
 # -----------------------------------------------------------------------------
 # Add and populate columns for each of the 4 forward ratios
@@ -227,28 +218,25 @@ AddCraftingStepToTree = function(item_filter,
   return(CRAFTING_TREE %>% add_row(row))
 }
 
-# -----------------------------------------------------------------------------
-# Recipes table pre-processing
-# Add forward, reverse rates
-RECIPES = AddForwardRatios(RECIPES)
-RECIPES = AddReverseRatios(RECIPES)
-
-# Add bool column for presence/absence of byproducts of the recipe
-RECIPES = AddHasByproduct(RECIPES)
-
-# Initialize a tibble for the crafting chain
-CRAFTING_TEMPLATE = tibble(recipe=character(),
-                           input_1=character(), input_rate_1=numeric(),
-                           input_2=character(), input_rate_2=numeric(),
-                           input_3=character(), input_rate_3=numeric(),
-                           input_4=character(), input_rate_4=numeric(),
-                           building=character(),
-                           product=character(), product_rate=numeric(),
-                           byproduct=character(), byproduct_rate=numeric())
-
-# Make a copy of the template for use
-CRAFTING_TREE = CRAFTING_TEMPLATE
-
-# 
-ALL_INPUTS_FROM_CRAFTING = c()
-TOTAL_INPUTS_FROM_CRAFTING = c()
+NetProduction = function(CRAFTING_TREE) {
+  
+  all_inputs = GatherInputs(CRAFTING_TREE)
+  all_products = GatherProducts(CRAFTING_TREE)
+  
+  all_products['total_product_rates'] = all_products['total_product_rates'] * -1
+  
+  all_products = all_products %>% rename(items = total_products,
+                                         rates = total_product_rates)
+  
+  all_inputs = all_inputs %>% rename(items = total_inputs,
+                                     rates = total_input_rates)
+  
+  net_items = bind_rows(all_products, all_inputs) %>%
+    group_by(items) %>% 
+    summarise(rates = sum(rates)) %>%
+    filter(rates > 0) %>%
+    select(items) %>%
+    pull()
+  
+  return(net_items)
+}
