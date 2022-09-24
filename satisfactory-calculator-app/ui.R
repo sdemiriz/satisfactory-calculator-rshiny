@@ -1,4 +1,10 @@
 
+# Screen-width utilization configuration
+FULL_SCREEN_WIDTH = 12
+SIDE_PANEL_WIDTH = 3
+MAIN_PANEL_WIDTH = FULL_SCREEN_WIDTH - SIDE_PANEL_WIDTH
+
+# -----------------------------------------------------------------------------
 # Front-end definition
 ui <- fluidPage(
   
