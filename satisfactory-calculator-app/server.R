@@ -1,37 +1,5 @@
-
 # -----------------------------------------------------------------------------
 server <- function(input, output, session) {
-  
-  # Define root folder
-  root_dir = '../data/'
-  
-  # Import recipes, items, buildings tables
-  RECIPES = ImportAsTibble(root_dir, 'recipes.csv')
-  ITEMS = ImportAsTibble(root_dir, 'items.csv')
-  BUILDINGS = ImportAsTibble(root_dir, 'buildings.csv')
-  
-  # Recipes table pre-processing
-  # Add forward, reverse rates
-  RECIPES = AddForwardRatios(RECIPES)
-  RECIPES = AddReverseRatios(RECIPES)
-  
-  # Add bool column for presence/absence of byproducts of the recipe
-  RECIPES = AddHasByproduct(RECIPES)
-  
-  # Initialize a tibble for the crafting chain
-  CRAFTING_TEMPLATE = tibble(
-                        recipe=character(),
-                        input_1=character(), input_rate_1=numeric(),
-                        input_2=character(), input_rate_2=numeric(),
-                        input_3=character(), input_rate_3=numeric(),
-                        input_4=character(), input_rate_4=numeric(),
-                        building=character(),
-                        product=character(), product_rate=numeric(),
-                        byproduct=character(), byproduct_rate=numeric()
-                       )
-  
-  # Make a copy of the template for use
-  CRAFTING_TREE = CRAFTING_TEMPLATE
   
   # Search Bar Item Selector
   output$item_filter = renderUI({
@@ -115,7 +83,7 @@ server <- function(input, output, session) {
     })
     
     # Gather all inputs from the Crafting Table into list
-    ALL_INPUTS_FROM_CRAFTING <<- GatherInputs(CRAFTING_TREE)
+    ALL_INPUTS_FROM_CRAFTING = GatherInputs(CRAFTING_TREE)
     
     # 
     ALL_INPUTS_FROM_CRAFTING = ALL_INPUTS_FROM_CRAFTING %>%

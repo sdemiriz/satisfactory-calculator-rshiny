@@ -8,14 +8,20 @@ ImportAsTibble = function(path_to_table, table_name) {
   # Assemble full path for table
   full_path = paste0(path_to_table, table_name)
   
-  print(getwd())
-  
   # Read the file
   csv_file = read.csv(full_path, header = TRUE)
   
   # Return as tibble
   return(as_tibble(csv_file))
 }
+
+# Define root folder
+root_dir = 'data/'
+
+# Import recipes, items, buildings tables
+RECIPES = ImportAsTibble(root_dir, 'recipes.csv')
+ITEMS = ImportAsTibble(root_dir, 'items.csv')
+BUILDINGS = ImportAsTibble(root_dir, 'buildings.csv')
 
 # -----------------------------------------------------------------------------
 # Add and populate columns for each of the 4 forward ratios
@@ -57,6 +63,31 @@ AddHasByproduct = function(recipes_tibble) {
   
   return(recipes_tibble)
 }
+
+# Recipes table pre-processing
+# Add forward, reverse rates
+RECIPES = AddForwardRatios(RECIPES)
+RECIPES = AddReverseRatios(RECIPES)
+
+# Add bool column for presence/absence of byproducts of the recipe
+RECIPES = AddHasByproduct(RECIPES)
+
+# Initialize a tibble for the crafting chain
+CRAFTING_TEMPLATE = tibble(
+                      recipe=character(),
+                      input_1=character(), input_rate_1=numeric(),
+                      input_2=character(), input_rate_2=numeric(),
+                      input_3=character(), input_rate_3=numeric(),
+                      input_4=character(), input_rate_4=numeric(),
+                      building=character(),
+                      product=character(), product_rate=numeric(),
+                      byproduct=character(), byproduct_rate=numeric()
+                    )
+
+# Make a copy of the template for use
+CRAFTING_TREE = CRAFTING_TEMPLATE
+
+print(RECIPES)
 
 # -----------------------------------------------------------------------------
 # Call generic function to return the content of input columns
