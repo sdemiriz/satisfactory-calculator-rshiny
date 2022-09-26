@@ -87,8 +87,6 @@ CRAFTING_TEMPLATE = tibble(
 # Make a copy of the template for use
 CRAFTING_TREE = CRAFTING_TEMPLATE
 
-print(RECIPES)
-
 # -----------------------------------------------------------------------------
 # Call generic function to return the content of input columns
 GatherInputs = function(CRAFTING_TREE) {
@@ -225,6 +223,10 @@ AddCraftingStepToTree = function(item_filter,
   recipe_row$input_rate_3 = .RatioTimesColumn(recipe_row$input_rate_3, ratio)
   recipe_row$input_rate_4 = .RatioTimesColumn(recipe_row$input_rate_4, ratio)
   
+  # Remove duplicate steps in crafting tree
+  CRAFTING_TREE = CRAFTING_TREE %>% 
+                      filter(recipe != recipe_filter)
+  
   # Add ratio-multiplied row as step to crafting tree
   CRAFTING_TREE = .AddRowToCraftingTree(CRAFTING_TREE, recipe_row)
   
@@ -263,11 +265,18 @@ NetProduction = function(CRAFTING_TREE) {
                                      rates = total_input_rates)
   
   net_items = bind_rows(all_products, all_inputs) %>%
-    group_by(items) %>% 
-    summarise(rates = sum(rates)) %>%
-    filter(rates > 0) %>%
-    select(items) %>%
-    pull()
+                group_by(items) %>% 
+                summarise(rates = sum(rates)) %>%
+                filter(rates > 0) %>%
+                select(items) %>%
+                pull()
   
   return(net_items)
+}
+
+length_df = function(df) {
+  
+  len = df %>% count() %>% pull()
+  
+  return(len)
 }
