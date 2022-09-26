@@ -91,7 +91,7 @@ server <- function(input, output, session) {
     # Gather all inputs from the Crafting Table into list
     ALL_INPUTS_FROM_CRAFTING = GatherInputs(CRAFTING_TREE)
     
-    # 
+    # Add item state and rawness columns
     ALL_INPUTS_FROM_CRAFTING = ALL_INPUTS_FROM_CRAFTING %>%
                                 inner_join(
                                   ITEMS, 
@@ -99,6 +99,7 @@ server <- function(input, output, session) {
                                 ) %>%
                                 filter(is_raw == FALSE)
     
+    # Get input names from crafting tree
     TOTAL_INPUTS_FROM_CRAFTING = ALL_INPUTS_FROM_CRAFTING$total_inputs
     
     output$input_filter = renderUI({
@@ -200,12 +201,6 @@ server <- function(input, output, session) {
                             select(total_input_rates) %>%
                             pull()
       
-    # all_inputs_from_crafting = all_inputs_from_crafting %>%
-    #                               inner_join(
-    #                                 ITEMS,
-    #                                 by = c('total_inputs' = 'item')
-    #                               )
-    
     # Add input, recipe and quantity as new step to Crafting Tree
     CRAFTING_TREE <<- AddCraftingStepToTree(input$input_filter,
                                             input$recipe_for_input,
