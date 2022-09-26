@@ -70,11 +70,17 @@ server <- function(input, output, session) {
   # Search Bar Start Crafting Button
   observeEvent(input$crafting_start, {
     
-    # Add user's final selection to Crafting Table
-    CRAFTING_TREE <<- AddCraftingStepToTree(input$item_filter, 
-                                          input$recipe_filter, 
-                                          input$item_quantity, 
-                                          CRAFTING_TREE)
+    if (length_df(CRAFTING_TREE) == 0) {
+      
+      # Add user's final selection to Crafting Table if it is empty
+      CRAFTING_TREE <<- AddCraftingStepToTree(input$item_filter, 
+                                              input$recipe_filter, 
+                                              input$item_quantity, 
+                                              CRAFTING_TREE)
+    } else {
+      
+      print('Warning: Trying to start crafting for non-empty crafting tree')
+    }
     
     # Update the Crafting Table with user's final selection
     output$crafting_table = renderTable({
@@ -185,14 +191,6 @@ server <- function(input, output, session) {
   
   observeEvent(input$button_1, {
     
-    # PLAN:
-    # 1. Filter RECIPES on selected item+recipe
-    # 2. Retrieve the appropriate crafting rate from Crafting Tree
-    # 3. Add new step to Crafting Tree with item+recipe+rate
-    # 4. Remove selected item+recipe from options in input_filter+recipe_for_input
-    # 5. Update input_filter+recipe_for_input dropdown lists looks
-    # 6. Update table looks
-    
     # Gather all inputs from the Crafting Table into list
     all_inputs_from_crafting = GatherInputs(CRAFTING_TREE)
     
@@ -202,11 +200,11 @@ server <- function(input, output, session) {
                             select(total_input_rates) %>%
                             pull()
       
-    all_inputs_from_crafting = all_inputs_from_crafting %>%
-                                  inner_join(
-                                    ITEMS,
-                                    by = c('total_inputs' = 'item')
-                                  )
+    # all_inputs_from_crafting = all_inputs_from_crafting %>%
+    #                               inner_join(
+    #                                 ITEMS,
+    #                                 by = c('total_inputs' = 'item')
+    #                               )
     
     # Add input, recipe and quantity as new step to Crafting Tree
     CRAFTING_TREE <<- AddCraftingStepToTree(input$input_filter,
@@ -221,14 +219,6 @@ server <- function(input, output, session) {
     })
     
     net_items = NetProduction(CRAFTING_TREE)
-    
-    # Remove selected recipe from all derived inputs
-    # all_inputs_from_crafting = all_inputs_from_crafting %>%
-    #                             filter(
-    #                               total_inputs != input$input_filter
-    #                             )
-    # 
-    # total_inputs_from_crafting = all_inputs_from_crafting$total_inputs
     
     # Update the list in input filter
     output$input_filter = renderUI({
