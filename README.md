@@ -5,6 +5,7 @@ I hope the name is self-explanatory enough.
 
 ## R packages:
 
+* `bs_theme`
 * `shiny`
 * `tidyverse`
 * `igraph`/`visNetwork`?

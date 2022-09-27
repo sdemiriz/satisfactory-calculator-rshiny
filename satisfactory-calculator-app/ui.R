@@ -6,7 +6,30 @@ MAIN_PANEL_WIDTH = FULL_SCREEN_WIDTH - SIDE_PANEL_WIDTH
 
 # -----------------------------------------------------------------------------
 # Front-end definition
+# https://www.nordtheme.com/
 ui <- fluidPage(
+  theme = bs_theme(
+    bg = "#2e3440", 
+    fg = "#eceff4", 
+    primary = "#81a1c1", 
+    success = "#a3be8c",
+    danger = "#bf616a",
+    base_font = font_google("Roboto"),
+    code_font = font_google("JetBrains Mono"),
+    "dropdown-link-hover-bg" = "#434c5e"
+    
+  ),
+  tags$head(
+    # Note the wrapping of the string in HTML()
+    tags$style(HTML("
+      .well {
+        background-color: #434c5e;
+      }
+
+      .btn {
+        margin-bottom: 3px;
+      }"))
+  ),
   
   # Row 1: Title
   fluidRow(
@@ -39,11 +62,13 @@ ui <- fluidPage(
                       value = 10),
         
         # Button to add selected item, recipe, quantity to crafting section
-        actionButton(inputId = 'crafting_start', 
+        actionButton(inputId = 'crafting_start',
+                      class = 'btn-success',
                       label = 'Begin crafting tree'),
         
         # Button to clear crafting section, and its input fields
-        actionButton(inputId = 'crafting_clear', 
+        actionButton(inputId = 'crafting_clear',
+                      class = 'btn-danger',
                       label = 'Clear crafting tree')
      )
   ),
@@ -71,7 +96,8 @@ ui <- fluidPage(
         uiOutput('recipe_for_input'),
         
         # Confirm adding the item, recipe to Crafting Tree
-        actionButton(inputId = 'button_1',
+        actionButton(inputId = 'selection_confirm',
+                      class = 'btn-primary',
                       label = 'Confirm selections')
       )
     ),
