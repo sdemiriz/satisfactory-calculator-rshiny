@@ -2,70 +2,34 @@
 server <- function(input, output, session) {
   
   # Search Bar Item Selector
-  output$item_filter = renderUI({
-    
-    # Find all item names available in provided data
-    unique_item_names = RECIPES %>% 
-                          select(product) %>%
-                          arrange(product) %>%
-                          unique() %>%
-                          pull()
-    
-    # Use found items in dropdown
-    return(
-      selectInput(
-        inputId = 'item_filter', 
-        label = 'Select Item to start Crafting Tree',
-        choices = unique_item_names
-      )
-    )
-  })
+  selected_item <- searchItemFilterServer('search_item_filter', 
+                                          RECIPES)
   
   # Search Bar Recipe Selector
-  output$recipe_filter = renderUI({
-    
-    # Find all available recipes for the selected item
-    unique_recipe_names = RECIPES %>%
-                            filter(
-                              product == input$item_filter
-                            ) %>%
-                            select(recipe) %>%
-                            arrange(recipe)
-    
-    # Prevent returning "recipe" when there is only one recipe for item
-    if(count(unique_recipe_names) <= 1) {
-      
-      unique_recipe_names = unique_recipe_names$recipe[1]
-    }
-    
-    # Use found recipes in dropdown
-    return(
-      selectInput(
-        inputId = 'recipe_filter', 
-        label = 'Select Recipe for Selected Item', 
-        choices = unique_recipe_names
-      )
-    )
-  })
+  selected_recipe <- searchRecipeFilterServer('search_recipe_filter', 
+                                              RECIPES, selected_item)
   
-  # Search Bar Table Viewer
-  output$recipes_table = renderTable({
+  searchRecipesTableServer('search_recipes_table',
+                           RECIPES, selected_item)
     
-    # Select crafting-relevant columns from data
-    unique_recipe_names = RECIPES %>%
-                            select(
-                              recipe, 
-                              input_1, input_rate_1, 
-                              input_2, input_rate_2, 
-                              input_3, input_rate_3, 
-                              input_4, input_rate_4, 
-                              building, 
-                              product, product_rate, 
-                              byproduct, byproduct_rate
-                            ) %>%
-                            filter(product == input$item_filter) %>%
-                            arrange(recipe)
-  })
+  # # Search Bar Table Viewer
+  # output$recipes_table = renderTable({
+  # 
+  #   # Select crafting-relevant columns from data
+  #   unique_recipe_names = RECIPES %>%
+  #                           select(
+  #                             recipe,
+  #                             input_1, input_rate_1,
+  #                             input_2, input_rate_2,
+  #                             input_3, input_rate_3,
+  #                             input_4, input_rate_4,
+  #                             building,
+  #                             product, product_rate,
+  #                             byproduct, byproduct_rate
+  #                           ) %>%
+  #                           filter(product == selected_item()) %>%
+  #                           arrange(recipe)
+  # })
   
   # Search Bar Start Crafting Button
   observeEvent(input$crafting_start, {
