@@ -28,10 +28,12 @@ ui <- fluidPage(
       wellPanel(
              
         # Search bar item filter
-        uiOutput('item_filter'),
+        # uiOutput('item_filter'),
+        searchItemFilterUI('search_item_filter'),
         
         # Search bar recipe filter
-        uiOutput('recipe_filter'),
+        # uiOutput('recipe_filter'),
+        searchRecipeFilterUI('search_recipe_filter'),
         
         # Search bar quantity selector
         numericInput(inputId = 'item_quantity',
@@ -49,7 +51,7 @@ ui <- fluidPage(
   ),
     
     # Remaining width of screen houses the "Search Results" table
-    column(MAIN_PANEL_WIDTH, tableOutput('recipes_table'))
+    column(MAIN_PANEL_WIDTH, searchRecipesTableUI('search_recipes_table'))
   ),
   
   # Row 3: Crafting Tree and its sidebar
