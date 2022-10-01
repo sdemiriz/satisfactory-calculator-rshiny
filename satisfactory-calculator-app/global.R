@@ -1,6 +1,10 @@
 library(tidyverse)
 library(shiny)
 
+source('searchItemFilter.R')
+source('searchRecipeFilter.R')
+source('searchRecipesTable.R')
+
 # -----------------------------------------------------------------------------
 # Import a .csv file as tibbles from a specified directory
 ImportAsTibble = function(path_to_table, table_name) {
