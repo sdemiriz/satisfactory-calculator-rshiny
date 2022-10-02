@@ -35,3 +35,20 @@ searchRecipesTableServer <- function(id, RECIPES, selected_item) {
 }
 
 ## LEGACY CODE
+# output$recipes_table = renderTable({
+# 
+#   # Select crafting-relevant columns from data
+#   unique_recipe_names = RECIPES %>%
+#                           select(
+#                             recipe,
+#                             input_1, input_rate_1,
+#                             input_2, input_rate_2,
+#                             input_3, input_rate_3,
+#                             input_4, input_rate_4,
+#                             building,
+#                             product, product_rate,
+#                             byproduct, byproduct_rate
+#                           ) %>%
+#                           filter(product == selected_item()) %>%
+#                           arrange(recipe)
+# })

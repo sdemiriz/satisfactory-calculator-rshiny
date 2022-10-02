@@ -9,27 +9,12 @@ server <- function(input, output, session) {
   selected_recipe <- searchRecipeFilterServer('search_recipe_filter', 
                                               RECIPES, selected_item)
   
+  # Search Bar Quantity Selector
+  selected_quantity <- searchItemQuantityServer('search_item_quantity')
+  
+  # Search Bar Table Viewer
   searchRecipesTableServer('search_recipes_table',
                            RECIPES, selected_item)
-    
-  # # Search Bar Table Viewer
-  # output$recipes_table = renderTable({
-  # 
-  #   # Select crafting-relevant columns from data
-  #   unique_recipe_names = RECIPES %>%
-  #                           select(
-  #                             recipe,
-  #                             input_1, input_rate_1,
-  #                             input_2, input_rate_2,
-  #                             input_3, input_rate_3,
-  #                             input_4, input_rate_4,
-  #                             building,
-  #                             product, product_rate,
-  #                             byproduct, byproduct_rate
-  #                           ) %>%
-  #                           filter(product == selected_item()) %>%
-  #                           arrange(recipe)
-  # })
   
   # Search Bar Start Crafting Button
   observeEvent(input$crafting_start, {
@@ -37,9 +22,9 @@ server <- function(input, output, session) {
     if (length_df(CRAFTING_TREE) == 0) {
       
       # Add user's final selection to Crafting Table if it is empty
-      CRAFTING_TREE <<- AddCraftingStepToTree(input$item_filter, 
-                                              input$recipe_filter, 
-                                              input$item_quantity, 
+      CRAFTING_TREE <<- AddCraftingStepToTree(selected_item, 
+                                              selected_recipe, 
+                                              selected_quantity, 
                                               CRAFTING_TREE)
     } else {
       
