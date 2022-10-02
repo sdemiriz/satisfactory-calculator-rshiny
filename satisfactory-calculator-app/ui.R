@@ -28,17 +28,13 @@ ui <- fluidPage(
       wellPanel(
              
         # Search bar item filter
-        # uiOutput('item_filter'),
         searchItemFilterUI('search_item_filter'),
         
         # Search bar recipe filter
-        # uiOutput('recipe_filter'),
         searchRecipeFilterUI('search_recipe_filter'),
         
         # Search bar quantity selector
-        numericInput(inputId = 'item_quantity',
-                      label = 'Select Quantity of Item',
-                      value = 10),
+        searchItemQuantityUI('search_item_quantity'),
         
         # Button to add selected item, recipe, quantity to crafting section
         actionButton(inputId = 'crafting_start', 
