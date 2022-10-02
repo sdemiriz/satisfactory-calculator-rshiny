@@ -1,22 +1,37 @@
 library(tidyverse)
 library(shiny)
 
-source('searchItemFilter.R')
-source('searchRecipeFilter.R')
-source('searchItemQuantity.R')
-source('searchRecipesTable.R')
-source('beginCraftingButton.R')
-source('clearCraftingButton.R')
+# source('modules/searchItemFilter.R')
+# source('modules/searchRecipeFilter.R')
+# source('modules/searchItemQuantity.R')
+# source('modules/searchRecipesTable.R')
+# source('modules/beginCraftingButton.R')
+# source('modules/clearCraftingButton.R')
+
+module_files_list <- c(
+  'searchItemFilter.R',
+  'searchRecipeFilter.R',
+  'searchItemQuantity.R',
+  'searchRecipesTable.R',
+  'beginCraftingButton.R',
+  'clearCraftingButton.R'
+ )
+
+source_modules <- function(modules_dir, module_files_list) {
+  lapply(paste0(modules_dir, module_files_list), source)
+}
+
+source_modules('modules/', module_files_list)
 
 # -----------------------------------------------------------------------------
 # Import a .csv file as tibbles from a specified directory
-ImportAsTibble = function(path_to_table, table_name) {
+ImportAsTibble <- function(path_to_table, table_name) {
   
   # Assemble full path for table
-  full_path = paste0(path_to_table, table_name)
+  full_path <- paste0(path_to_table, table_name)
   
   # Read the file
-  csv_file = read.csv(full_path, header = TRUE)
+  csv_file <- read.csv(full_path, header = TRUE)
   
   # Return as tibble
   return(as_tibble(csv_file))
@@ -26,9 +41,9 @@ ImportAsTibble = function(path_to_table, table_name) {
 root_dir = 'data/'
 
 # Import recipes, items, buildings tables
-RECIPES = ImportAsTibble(root_dir, 'recipes.csv')
-ITEMS = ImportAsTibble(root_dir, 'items.csv')
-BUILDINGS = ImportAsTibble(root_dir, 'buildings.csv')
+RECIPES <- ImportAsTibble(root_dir, 'recipes.csv')
+ITEMS <- ImportAsTibble(root_dir, 'items.csv')
+BUILDINGS <- ImportAsTibble(root_dir, 'buildings.csv')
 
 # -----------------------------------------------------------------------------
 # Add and populate columns for each of the 4 forward ratios
