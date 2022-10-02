@@ -1,13 +1,6 @@
 library(tidyverse)
 library(shiny)
 
-# source('modules/searchItemFilter.R')
-# source('modules/searchRecipeFilter.R')
-# source('modules/searchItemQuantity.R')
-# source('modules/searchRecipesTable.R')
-# source('modules/beginCraftingButton.R')
-# source('modules/clearCraftingButton.R')
-
 module_files_list <- c(
   'searchItemFilter.R',
   'searchRecipeFilter.R',
