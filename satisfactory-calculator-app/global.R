@@ -5,6 +5,8 @@ source('searchItemFilter.R')
 source('searchRecipeFilter.R')
 source('searchItemQuantity.R')
 source('searchRecipesTable.R')
+source('beginCraftingButton.R')
+source('clearCraftingButton.R')
 
 # -----------------------------------------------------------------------------
 # Import a .csv file as tibbles from a specified directory
