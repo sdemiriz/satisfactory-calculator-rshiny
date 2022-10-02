@@ -37,12 +37,10 @@ ui <- fluidPage(
         searchItemQuantityUI('search_item_quantity'),
         
         # Button to add selected item, recipe, quantity to crafting section
-        actionButton(inputId = 'crafting_start', 
-                      label = 'Begin crafting tree'),
+        beginCraftingButtonUI('search_crafting_start'),
         
         # Button to clear crafting section, and its input fields
-        actionButton(inputId = 'crafting_clear', 
-                      label = 'Clear crafting tree')
+        clearCraftingButtonUI('search_crafting_clear')
      )
   ),
     
