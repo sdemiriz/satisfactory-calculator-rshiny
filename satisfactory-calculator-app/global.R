@@ -3,6 +3,7 @@ library(shiny)
 
 source('searchItemFilter.R')
 source('searchRecipeFilter.R')
+source('searchItemQuantity.R')
 source('searchRecipesTable.R')
 
 # -----------------------------------------------------------------------------
