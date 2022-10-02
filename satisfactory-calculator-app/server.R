@@ -13,86 +13,92 @@ server <- function(input, output, session) {
   selected_quantity <- searchItemQuantityServer('search_item_quantity')
   
   # Search Bar Table Viewer
-  searchRecipesTableServer('search_recipes_table',
+  searchRecipesTableServer('search_recipes_table', 
                            RECIPES, selected_item)
   
+  # Search Bar Start Crafting Tree Button
+  crafting_start <- beginCraftingButtonServer('search_crafting_start')
+  
+  # Search Bar Clear Crafting Tree Button
+  crafting_clear <- clearCraftingButtonServer('search_crafting_clear')
+  
   # Search Bar Start Crafting Button
-  observeEvent(input$crafting_start, {
-    
-    if (length_df(CRAFTING_TREE) == 0) {
-      
-      # Add user's final selection to Crafting Table if it is empty
-      CRAFTING_TREE <<- AddCraftingStepToTree(selected_item, 
-                                              selected_recipe, 
-                                              selected_quantity, 
-                                              CRAFTING_TREE)
-    } else {
-      
-      print('Warning: Trying to start crafting for non-empty crafting tree')
-    }
-    
-    # Update the Crafting Table with user's final selection
-    output$crafting_table = renderTable({
-      
-      return(CRAFTING_TREE)
-    })
-    
-    # Gather all inputs from the Crafting Table into list
-    ALL_INPUTS_FROM_CRAFTING = GatherInputs(CRAFTING_TREE)
-    
-    # Add item state and rawness columns
-    ALL_INPUTS_FROM_CRAFTING = ALL_INPUTS_FROM_CRAFTING %>%
-                                inner_join(
-                                  ITEMS, 
-                                  by = c('total_inputs' = 'item')
-                                ) %>%
-                                filter(is_raw == FALSE)
-    
-    # Get input names from crafting tree
-    TOTAL_INPUTS_FROM_CRAFTING = ALL_INPUTS_FROM_CRAFTING$total_inputs
-    
-    output$input_filter = renderUI({
-      
-      return(
-        selectInput(inputId = 'input_filter',
-                    label = 'Select Input to Configure',
-                    choices = TOTAL_INPUTS_FROM_CRAFTING)
-      )
-    })
-    
-    # Update Crafting Tree Input Selector
-    output$recipe_for_input = renderUI({
-      
-      recipes_from_total_inputs_crafting = RECIPES %>%
-                                            filter(
-                                              product == input$input_filter
-                                            ) %>%
-                                            select(recipe) %>%
-                                            arrange(recipe) %>%
-                                            pull()
-      
-      return(
-        selectInput(inputId = 'recipe_for_input', 
-                    label = 'Select Recipe for Selected Input', 
-                    choices = recipes_from_total_inputs_crafting)
-      )
-    })
-  })
+  # observeEvent(crafting_start, {
+  #   
+  #   if (length_df(CRAFTING_TREE) == 0) {
+  #     
+  #     # Add user's final selection to Crafting Table if it is empty
+  #     CRAFTING_TREE <<- AddCraftingStepToTree(selected_item, 
+  #                                             selected_recipe, 
+  #                                             selected_quantity, 
+  #                                             CRAFTING_TREE)
+  #   } else {
+  #     
+  #     print('Warning: Trying to start crafting for non-empty crafting tree')
+  #   }
+  #   
+  #   # Update the Crafting Table with user's final selection
+  #   output$crafting_table = renderTable({
+  #     
+  #     return(CRAFTING_TREE)
+  #   })
+  #   
+  #   # Gather all inputs from the Crafting Table into list
+  #   ALL_INPUTS_FROM_CRAFTING = GatherInputs(CRAFTING_TREE)
+  #   
+  #   # Add item state and rawness columns
+  #   ALL_INPUTS_FROM_CRAFTING = ALL_INPUTS_FROM_CRAFTING %>%
+  #                               inner_join(
+  #                                 ITEMS, 
+  #                                 by = c('total_inputs' = 'item')
+  #                               ) %>%
+  #                               filter(is_raw == FALSE)
+  #   
+  #   # Get input names from crafting tree
+  #   TOTAL_INPUTS_FROM_CRAFTING = ALL_INPUTS_FROM_CRAFTING$total_inputs
+  #   
+  #   output$input_filter = renderUI({
+  #     
+  #     return(
+  #       selectInput(inputId = 'input_filter',
+  #                   label = 'Select Input to Configure',
+  #                   choices = TOTAL_INPUTS_FROM_CRAFTING)
+  #     )
+  #   })
+  #   
+  #   # Update Crafting Tree Input Selector
+  #   output$recipe_for_input = renderUI({
+  #     
+  #     recipes_from_total_inputs_crafting = RECIPES %>%
+  #                                           filter(
+  #                                             product == input$input_filter
+  #                                           ) %>%
+  #                                           select(recipe) %>%
+  #                                           arrange(recipe) %>%
+  #                                           pull()
+  #     
+  #     return(
+  #       selectInput(inputId = 'recipe_for_input', 
+  #                   label = 'Select Recipe for Selected Input', 
+  #                   choices = recipes_from_total_inputs_crafting)
+  #     )
+  #   })
+  # })
 
 # -----------------------------------------------------------------------------
   # Crafting Tree Input Selector default
   output$input_filter = renderUI({
-    
+
     return(
       selectInput(inputId = 'input_filter',
                   label = 'Select Input Item to Configure',
                   choices = NULL)
     )
   })
-  
+
   # Recipe Selector for Selected Input default
   output$recipe_for_input = renderUI({
-    
+
     return(
       selectInput(inputId = 'recipe_for_input',
                   label = 'Select Recipe for Input Item',
@@ -101,41 +107,41 @@ server <- function(input, output, session) {
   })
   
   # When clearing the Crafting Tree
-  observeEvent(input$crafting_clear, {
-    
-    # Clear table using the empty template
-    output$crafting_table = renderTable({
-      
-      CRAFTING_TREE <<- CRAFTING_TEMPLATE
-      return(CRAFTING_TREE)
-    })
-    
-    # Clear input filter
-    output$input_filter = renderUI({
-      
-      # Set choices to NULL to clear them
-      return(
-        selectInput(inputId = 'input_filter',
-                    label = 'Select Input Item to Configure',
-                    choices = NULL)
-      )
-    })
-    
-    # Clear recipe filter
-    output$recipe_for_input = renderUI({
-      
-      # Set choices to NULL to clear them
-      return(
-        selectInput(inputId = 'recipe_for_input',
-                    label = 'Select Recipe for Input Item',
-                    choices = NULL)
-      )
-    })
-  })
+  # observeEvent(input$crafting_clear, {
+  #   
+  #   # Clear table using the empty template
+  #   output$crafting_table = renderTable({
+  #     
+  #     CRAFTING_TREE <<- CRAFTING_TEMPLATE
+  #     return(CRAFTING_TREE)
+  #   })
+  #   
+  #   # Clear input filter
+  #   output$input_filter = renderUI({
+  #     
+  #     # Set choices to NULL to clear them
+  #     return(
+  #       selectInput(inputId = 'input_filter',
+  #                   label = 'Select Input Item to Configure',
+  #                   choices = NULL)
+  #     )
+  #   })
+  #   
+  #   # Clear recipe filter
+  #   output$recipe_for_input = renderUI({
+  #     
+  #     # Set choices to NULL to clear them
+  #     return(
+  #       selectInput(inputId = 'recipe_for_input',
+  #                   label = 'Select Recipe for Input Item',
+  #                   choices = NULL)
+  #     )
+  #   })
+  # })
   
   # Crafting Table default
   output$crafting_table = renderTable({
-    
+
     return(CRAFTING_TREE)
   })
   
