@@ -61,14 +61,13 @@ ui <- fluidPage(
       wellPanel(
       
         # Item selector for Crafting Tree
-        uiOutput('input_filter'),
+        craftingInputFilterUI('crafting_input_filter'),
         
         # Recipe selector for Crafting Tree
-        uiOutput('recipe_for_input'),
+        craftingRecipeFilterUI('crafting_recipe_filter'),
         
         # Confirm adding the item, recipe to Crafting Tree
-        actionButton(inputId = 'button_1',
-                      label = 'Confirm selections')
+        craftingConfirmButtonUI('crafting_confirm_button')
       )
     ),
     
