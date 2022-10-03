@@ -22,6 +22,14 @@ server <- function(input, output, session) {
   # Search Bar Clear Crafting Tree Button
   crafting_clear <- clearCraftingButtonServer('search_crafting_clear')
   
+  crafting_input <- craftingInputFilterServer('crafting_input_filter',
+                                              CRAFTING_TREE)
+  
+  crafting_recipe <- craftingRecipeFilterServer('crafting_recipe_filter',
+                                                CRAFTING_TREE)
+  
+  crafting_confirm <- craftingConfirmButtonServer('crafting_confirm_button')
+  
   # Search Bar Start Crafting Button
   # observeEvent(crafting_start, {
   #   
