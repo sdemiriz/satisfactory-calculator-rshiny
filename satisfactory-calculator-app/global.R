@@ -7,7 +7,10 @@ module_files_list <- c(
   'searchItemQuantity.R',
   'searchRecipesTable.R',
   'beginCraftingButton.R',
-  'clearCraftingButton.R'
+  'clearCraftingButton.R',
+  'craftingInputFilter.R',
+  'craftingRecipeFilter.R',
+  'craftingConfirmButton.R'
  )
 
 source_modules <- function(modules_dir, module_files_list) {
