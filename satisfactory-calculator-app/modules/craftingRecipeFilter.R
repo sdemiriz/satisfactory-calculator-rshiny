@@ -6,7 +6,7 @@ craftingRecipeFilterUI <- function(id) {
   uiOutput(ns('crafting_recipe_filter'))
 }
 
-craftingRecipeFilterServer <- function(id, CRAFTING_TREE) {
+craftingRecipeFilterServer <- function(id, choices) {
   moduleServer(id, function(input, output, session) {
     
     output$crafting_recipe_filter <- renderUI({
@@ -15,8 +15,8 @@ craftingRecipeFilterServer <- function(id, CRAFTING_TREE) {
       return(
         selectInput(
           inputId = ns('crafting_recipe_filter'),
-          label = 'Select Input to Configure',
-          choices = NULL
+          label = 'Select Recipe for selected Input',
+          choices = choices
         )
       )
     })
