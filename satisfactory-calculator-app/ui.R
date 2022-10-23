@@ -22,26 +22,7 @@ ui <- fluidPage(
     column(FULL_SCREEN_WIDTH, h3('Search for Recipes')),
     
     # Small part of the screen width
-    column(SIDE_PANEL_WIDTH,
-      
-      # Make input fields appear grouped    
-      wellPanel(
-             
-        # Search bar item filter
-        searchItemFilterUI('search_item_filter'),
-        
-        # Search bar recipe filter
-        searchRecipeFilterUI('search_recipe_filter'),
-        
-        # Search bar quantity selector
-        searchItemQuantityUI('search_item_quantity'),
-        
-        # Button to add selected item, recipe, quantity to crafting section
-        beginCraftingButtonUI('search_crafting_start'),
-        
-        # Button to clear crafting section, and its input fields
-        clearCraftingButtonUI('search_crafting_clear')
-     )
+    column(SIDE_PANEL_WIDTH, searchSidebarUI('search_sidebar')
   ),
     
     # Remaining width of screen houses the "Search Results" table
