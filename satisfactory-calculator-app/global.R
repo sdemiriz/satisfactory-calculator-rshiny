@@ -10,7 +10,8 @@ module_files_list <- c(
   'clearCraftingButton.R',
   'craftingInputFilter.R',
   'craftingRecipeFilter.R',
-  'craftingConfirmButton.R'
+  'craftingConfirmButton.R',
+  'searchSidebar.R'
  )
 
 source_modules <- function(modules_dir, module_files_list) {
@@ -292,7 +293,7 @@ NetProduction = function(CRAFTING_TREE) {
   return(net_items)
 }
 
-length_df = function(df) {
+lengthDF = function(df) {
   
   len = df %>% count() %>% pull()
   
