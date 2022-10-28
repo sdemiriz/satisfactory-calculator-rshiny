@@ -6,7 +6,7 @@ searchItemQuantityUI <- function(id) {
   tagList(
     numericInput(inputId = ns('selected_quantity'),
                   label = 'Select Quantity of Item',
-                  value = 10,
+                  value = 1,
                   min = 1
     )
   )
