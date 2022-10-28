@@ -10,36 +10,27 @@ searchRecipeFilterServer <- function(id, RECIPES, selected_item) {
   moduleServer(id, function(input, output, session) {
       
     # Find all available recipes for the selected item
-    recipe_names <- reactive({
+    selected_recipe <- reactive({
       
-      query_results <- RECIPES %>%
+      recipe_names <- RECIPES %>%
                         filter(product == selected_item()) %>%
                         select(recipe) %>%
-                        arrange(recipe)
+                        arrange(recipe) %>%
+                        pull()
       
-      # Return the single recipe if there is only one
-      if(count(query_results) <= 1) {
-        
-        query_results <- query_results$recipe[1]
-      }
-      
-      return(query_results)
+      recipe_names
     })
     
     # Use found recipes in dropdown
     output$search_recipe_filter <- renderUI({
       
       ns <- session$ns
-      return(
-        selectInput(
-          inputId = ns('selected_recipe'), 
-          label = 'Select Recipe for Selected Item', 
-          choices = recipe_names()
-        )
-      )
+      selectInput(inputId = ns('selected_recipe'), 
+                  label = 'Select Recipe for Selected Item', 
+                  choices = selected_recipe())
     })
     
-    return(reactive({ input$selected_recipe }))
+    reactive(input$selected_recipe)
   })
 }
 
