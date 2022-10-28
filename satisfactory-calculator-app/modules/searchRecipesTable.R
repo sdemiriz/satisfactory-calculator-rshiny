@@ -7,7 +7,8 @@ searchRecipesTableUI <- function(id) {
 }
 
 searchRecipesTableServer <- function(id, RECIPES, 
-                                     selected_item, selected_quantity) {
+                                     selected_item, 
+                                     selected_quantity) {
   moduleServer(id, function(input, output, session) {
     
     # Search Bar Table Viewer
@@ -31,7 +32,7 @@ searchRecipesTableServer <- function(id, RECIPES,
                         arrange(recipe)
       
       # Calculate the ratio (how many times the recipe is to be used for the step)
-      ratio <- .CalculateRatio(selected_quantity(), recipes_table$product_rate)
+      ratio <- CalculateRatio(selected_quantity(), recipes_table$product_rate)
       
       # Apply ratio to inputs, product and byproduct
       recipes_table <- ApplyRatio(recipes_table, ratio)
