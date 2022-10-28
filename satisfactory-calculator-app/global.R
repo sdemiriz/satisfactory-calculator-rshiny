@@ -229,7 +229,7 @@ AddCraftingStepToTree <- function(item_filter, recipe_filter,
                   )
   
   # Calculate the ratio (how many times the recipe is to be used for the step)
-  ratio <- .CalculateRatio(quantity, recipe_row$product_rate)
+  ratio <- CalculateRatio(quantity, recipe_row$product_rate)
   
   # # Multiply product, byproduct and all inputs by ratio
   # recipe_row$product_rate <- .RatioTimesColumn(recipe_row$product_rate, ratio)
@@ -267,7 +267,7 @@ ApplyRatio <- function(dataframe, ratio) {
 }
 
 # Worker function to divide user-desired rate by recipe rate from table
-.CalculateRatio <- function(desired_rate, recipe_rate) {
+CalculateRatio <- function(desired_rate, recipe_rate) {
   
   return(desired_rate / recipe_rate)
 }
