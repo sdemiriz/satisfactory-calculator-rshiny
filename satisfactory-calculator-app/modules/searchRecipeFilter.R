@@ -26,7 +26,7 @@ searchRecipeFilterServer <- function(id, RECIPES, selected_item) {
       
       ns <- session$ns
       selectInput(inputId = ns('selected_recipe'), 
-                  label = 'Select Recipe for Selected Item', 
+                  label = 'Select recipe for item to craft', 
                   choices = selected_recipe())
     })
     

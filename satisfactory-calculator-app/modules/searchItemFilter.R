@@ -12,7 +12,7 @@ searchItemFilterUI <- function(id) {
   tagList(
     selectInput(
       inputId = ns('selected_item'), 
-      label = 'Select Item to start Crafting Tree',
+      label = 'Select item to craft',
       choices = unique_item_names
     )
   )
