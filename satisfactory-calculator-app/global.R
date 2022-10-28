@@ -208,42 +208,42 @@ GatherByproducts = function(CRAFTING_TREE) {
 
 # -----------------------------------------------------------------------------
 # Add calculated crafting step to the crafting tree table
-AddCraftingStepToTree = function(item_filter, 
-                                 recipe_filter, 
-                                 quantity, 
-                                 CRAFTING_TREE) {
-  
+AddCraftingStepToTree <- function(item_filter, recipe_filter,
+                                  quantity, CRAFTING_TREE) {
+    
   # Query all available recipes for user selection via parameters
-  recipe_row = RECIPES %>%
-                filter(
-                  product == item_filter,
-                  recipe == recipe_filter
-                ) %>%
-                select(
-                  recipe, 
-                  input_1, input_rate_1,
-                  input_2, input_rate_2,
-                  input_3, input_rate_3,
-                  input_4, input_rate_4,
-                  building,
-                  product, product_rate,
-                  byproduct, byproduct_rate
-                )
+  recipe_row <- RECIPES %>%
+                  filter(
+                    product == item_filter,
+                    recipe == recipe_filter
+                  ) %>%
+                  select(
+                    recipe, 
+                    input_1, input_rate_1,
+                    input_2, input_rate_2,
+                    input_3, input_rate_3,
+                    input_4, input_rate_4,
+                    building,
+                    product, product_rate,
+                    byproduct, byproduct_rate
+                  )
   
   # Calculate the ratio (how many times the recipe is to be used for the step)
-  ratio = .CalculateRatio(quantity, recipe_row$product_rate)
+  ratio <- .CalculateRatio(quantity, recipe_row$product_rate)
   
-  # Multiply product, byproduct and all inputs by ratio
-  recipe_row$product_rate = .RatioTimesColumn(recipe_row$product_rate, ratio)
-  recipe_row$byproduct_rate = .RatioTimesColumn(recipe_row$byproduct_rate, ratio)
+  # # Multiply product, byproduct and all inputs by ratio
+  # recipe_row$product_rate <- .RatioTimesColumn(recipe_row$product_rate, ratio)
+  # recipe_row$byproduct_rate <- .RatioTimesColumn(recipe_row$byproduct_rate, ratio)
+  # 
+  # recipe_row$input_rate_1 <- .RatioTimesColumn(recipe_row$input_rate_1, ratio)
+  # recipe_row$input_rate_2 <- .RatioTimesColumn(recipe_row$input_rate_2, ratio)
+  # recipe_row$input_rate_3 <- .RatioTimesColumn(recipe_row$input_rate_3, ratio)
+  # recipe_row$input_rate_4 <- .RatioTimesColumn(recipe_row$input_rate_4, ratio)
   
-  recipe_row$input_rate_1 = .RatioTimesColumn(recipe_row$input_rate_1, ratio)
-  recipe_row$input_rate_2 = .RatioTimesColumn(recipe_row$input_rate_2, ratio)
-  recipe_row$input_rate_3 = .RatioTimesColumn(recipe_row$input_rate_3, ratio)
-  recipe_row$input_rate_4 = .RatioTimesColumn(recipe_row$input_rate_4, ratio)
+  recipe_row <- ApplyRatio(recipe_row, ratio)
   
   # Remove duplicate steps in crafting tree
-  CRAFTING_TREE = CRAFTING_TREE %>% 
+  CRAFTING_TREE <- CRAFTING_TREE %>% 
                       filter(recipe != recipe_filter)
   
   # Add ratio-multiplied row as step to crafting tree
@@ -252,30 +252,44 @@ AddCraftingStepToTree = function(item_filter,
   return(CRAFTING_TREE)
 }
 
+ApplyRatio <- function(dataframe, ratio) {
+  
+  # Multiply product, byproduct and all inputs by ratio
+  dataframe$product_rate <- .RatioTimesColumn(dataframe$product_rate, ratio)
+  dataframe$byproduct_rate <- .RatioTimesColumn(dataframe$byproduct_rate, ratio)
+  
+  dataframe$input_rate_1 <- .RatioTimesColumn(dataframe$input_rate_1, ratio)
+  dataframe$input_rate_2 <- .RatioTimesColumn(dataframe$input_rate_2, ratio)
+  dataframe$input_rate_3 <- .RatioTimesColumn(dataframe$input_rate_3, ratio)
+  dataframe$input_rate_4 <- .RatioTimesColumn(dataframe$input_rate_4, ratio)
+  
+  return(dataframe)
+}
+
 # Worker function to divide user-desired rate by recipe rate from table
-.CalculateRatio = function(desired_rate, recipe_rate) {
+.CalculateRatio <- function(desired_rate, recipe_rate) {
   
   return(desired_rate / recipe_rate)
 }
 
 # Worker function to multiply a table column by the ratio
-.RatioTimesColumn = function(col, ratio) {
+.RatioTimesColumn <- function(col, ratio) {
   
   return(col * ratio)
 }
 
 # Worker function to add calculated step to crafting tree table
-.AddRowToCraftingTree = function(CRAFTING_TREE, row) {
+.AddRowToCraftingTree <- function(CRAFTING_TREE, row) {
   
   return(CRAFTING_TREE %>% add_row(row))
 }
 
-NetProduction = function(CRAFTING_TREE) {
+NetProduction <- function(CRAFTING_TREE) {
   
-  all_inputs = GatherInputs(CRAFTING_TREE)
-  all_products = GatherProducts(CRAFTING_TREE)
+  all_inputs <- GatherInputs(CRAFTING_TREE)
+  all_products <- GatherProducts(CRAFTING_TREE)
   
-  all_products['total_product_rates'] = all_products['total_product_rates'] * -1
+  all_products['total_product_rates'] <- all_products['total_product_rates'] * -1
   
   all_products = all_products %>% rename(items = total_products,
                                          rates = total_product_rates)
@@ -283,7 +297,7 @@ NetProduction = function(CRAFTING_TREE) {
   all_inputs = all_inputs %>% rename(items = total_inputs,
                                      rates = total_input_rates)
   
-  net_items = bind_rows(all_products, all_inputs) %>%
+  net_items <- bind_rows(all_products, all_inputs) %>%
                 group_by(items) %>% 
                 summarise(rates = sum(rates)) %>%
                 filter(rates > 0) %>%
@@ -293,9 +307,9 @@ NetProduction = function(CRAFTING_TREE) {
   return(net_items)
 }
 
-lengthDF = function(df) {
+lengthDF <- function(df) {
   
-  len = df %>% count() %>% pull()
+  len <- df %>% count() %>% pull()
   
   return(len)
 }
