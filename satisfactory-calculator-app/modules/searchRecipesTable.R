@@ -6,12 +6,12 @@ searchRecipesTableUI <- function(id) {
   uiOutput(ns('search_recipes_table'))
 }
 
-searchRecipesTableServer <- function(id, RECIPES, 
+searchRecipesTableServer <- function(id, 
+                                     RECIPES, 
                                      selected_item, 
                                      selected_quantity) {
   moduleServer(id, function(input, output, session) {
     
-    # Search Bar Table Viewer
     output$search_recipes_table <- renderTable({
       
       ns <- session$ns
