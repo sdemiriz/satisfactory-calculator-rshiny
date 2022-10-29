@@ -18,12 +18,12 @@ server <- function(input, output, session) {
   
   crafting_sidebar <- craftingSidebarServer('crafting_sidebar')
   
-  search_table <- searchRecipesTableServer('crafting_tree_table')
+  search_table <- craftingSidebarServer('crafting_tree_table')
   
-  output$debugger <- renderText({ paste0(typeof(crafting_sidebar$crafting_input()),
-                                         ': ',
-                                         crafting_sidebar$crafting_input())
-  })
+  # output$debugger <- renderText({ paste0(typeof(crafting_sidebar$crafting_input()),
+  #                                        ': ',
+  #                                        crafting_sidebar$crafting_input())
+  # })
   
   # Crafting Table default
 #   output$crafting_table = renderTable({
