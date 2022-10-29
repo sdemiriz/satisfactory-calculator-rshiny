@@ -33,13 +33,46 @@ searchSidebarServer <- function(id, RECIPES) {
     
     crafting_clear <- clearCraftingButtonServer('search_crafting_clear')
     
+    # When starting Crafting Tree
+    observeEvent(crafting_start(), {
+      
+      if (LengthDF(CRAFTING_TREE) == 0) {
+        
+        LogCat('Starting Crafting Tree, adding:')
+        BetterCat('\t Itm:', selected_item())
+        BetterCat('\t Rcp:', selected_recipe())
+        BetterCat('\t Qty:', selected_quantity())
+        
+        CRAFTING_TREE <<- AddCraftingStepToTree(selected_item(),
+                                                selected_recipe(),
+                                                selected_quantity(),
+                                                CRAFTING_TREE)
+      } else {
+        
+        WarnCat('Trying to start crafting for non-empty Crafting Tree')
+      }
+    })
+    
+    # When clearing Crafting Tree
+    observeEvent(crafting_clear(), {
+      
+      if (LengthDF(CRAFTING_TREE) > 0) {
+        
+        LogCat('Clearing Crafting Tree')
+        CRAFTING_TREE <<- CRAFTING_TEMPLATE
+        
+      } else {
+        
+        WarnCat('Crafting Tree already empty')
+      }
+    })
+    
     list(selected_item = reactive(selected_item()),
          selected_recipe = reactive(selected_recipe()),
-         selected_quantity = reactive(selected_quantity()),
-         start = reactive(crafting_start()),
-         clear = reactive(crafting_clear())
+         selected_quantity = reactive(selected_quantity())
     )
     
+    ## LEGACY CODE
     # # Search Bar Start Crafting Button
     # observeEvent(input$crafting_start, {
     #   
