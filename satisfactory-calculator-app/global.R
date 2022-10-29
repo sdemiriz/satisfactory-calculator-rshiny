@@ -8,11 +8,12 @@ module_files_list <- c(
   'searchRecipesTable.R',
   'beginCraftingButton.R',
   'clearCraftingButton.R',
+  'searchSidebar.R',
   'craftingInputFilter.R',
   'craftingRecipeFilter.R',
   'craftingConfirmButton.R',
-  'searchSidebar.R'
- )
+  'craftingSidebar.R'
+)
 
 source_modules <- function(modules_dir, module_files_list) {
   lapply(paste0(modules_dir, module_files_list), source)
