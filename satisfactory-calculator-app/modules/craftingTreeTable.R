@@ -1,12 +1,12 @@
 library(shiny)
 
-searchRecipesTableUI <- function(id) {
+craftingTreeTableUI <- function(id) {
   
   ns <- NS(id)
   uiOutput(ns('crafting_tree_table'))
 }
 
-searchRecipesTableServer <- function(id) {
+craftingTreeTableServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     
     # Search Bar Table Viewer
