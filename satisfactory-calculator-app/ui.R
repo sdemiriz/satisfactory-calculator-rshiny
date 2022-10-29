@@ -39,6 +39,6 @@ ui <- fluidPage(
     # textOutput('debugger'),
     
     # Crafting section Crafting Tree table
-    column(MAIN_PANEL_WIDTH, craftingTreeTableUI('search_recipes_table'))
+    column(MAIN_PANEL_WIDTH, craftingTreeTableUI('crafting_tree_table'))
   )
 )
