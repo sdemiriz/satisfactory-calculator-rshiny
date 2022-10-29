@@ -1,5 +1,5 @@
 
-# Screen-width utilization configuration
+# Screen width utilization config
 FULL_SCREEN_WIDTH = 12
 SIDE_PANEL_WIDTH = 3
 MAIN_PANEL_WIDTH = FULL_SCREEN_WIDTH - SIDE_PANEL_WIDTH
@@ -15,34 +15,30 @@ ui <- fluidPage(
     column(FULL_SCREEN_WIDTH, h1("Calculator"))
   ),
   
-  # Row 2: Search and Crafting Tree setup sections
+  # Row 2: Search section
   fluidRow(
 
-    # Subtitle for section    
+    # Search section heading  
     column(FULL_SCREEN_WIDTH, h3('Search for Recipes')),
     
-    # Small part of the screen width
-    column(SIDE_PANEL_WIDTH, searchSidebarUI('search_sidebar'),
-             
-    ),
+    # Search section sidebar  
+    column(SIDE_PANEL_WIDTH, searchSidebarUI('search_sidebar')),
     
-    # Remaining width of screen houses the "Search Results" table
+    # Search section Recipes table  
     column(MAIN_PANEL_WIDTH, searchRecipesTableUI('search_recipes_table'))
   ),
   
-  # Row 3: Crafting Tree and its sidebar
+  # Row 3: Crafting section
   fluidRow(
 
-    # Subtitle for section
+    # Crafting section heading
     column(FULL_SCREEN_WIDTH, h3('Complete Crafting Tree')),
-
-    # Small part of screen width is take up by the recipe selector
-    column(SIDE_PANEL_WIDTH, 
-           craftingSidebarUI('crafting_sidebar'),
-           textOutput('debugger'),
-    ),
-
-    # Remaining width of the screen houses the "Crafting Tree" table
-    column(MAIN_PANEL_WIDTH, tableOutput('crafting_table'))
+    
+    # Crafting section sidebar
+    column(SIDE_PANEL_WIDTH, craftingSidebarUI('crafting_sidebar')),
+    # textOutput('debugger'),
+    
+    # Crafting section Crafting Tree table
+    column(MAIN_PANEL_WIDTH, craftingTreeTableUI('search_recipes_table'))
   )
 )
