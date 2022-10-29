@@ -47,55 +47,55 @@ BUILDINGS <- ImportAsTibble(root_dir, 'buildings.csv')
 
 # -----------------------------------------------------------------------------
 # Add and populate columns for each of the 4 forward ratios
-AddForwardRatios = function(recipes_tibble) {
+AddForwardRatios <- function(recipes_tibble) {
   
   # Add and populate columns for each of the 4 forward ratios
-  recipes_tibble = recipes_tibble %>% 
-                    mutate(
-                      forward_ratio_1 = input_rate_1/product_rate,
-                      forward_ratio_2 = input_rate_2/product_rate,
-                      forward_ratio_3 = input_rate_3/product_rate,
-                      forward_ratio_4 = input_rate_4/product_rate
-                    )
+  recipes_tibble <- recipes_tibble %>% 
+                      mutate(
+                        forward_ratio_1 = input_rate_1/product_rate,
+                        forward_ratio_2 = input_rate_2/product_rate,
+                        forward_ratio_3 = input_rate_3/product_rate,
+                        forward_ratio_4 = input_rate_4/product_rate
+                      )
   
   return(recipes_tibble)
 }
 
 # Add and populate columns for each of the 4 reverse ratios
-AddReverseRatios = function(recipes_tibble) {
+AddReverseRatios <- function(recipes_tibble) {
   
-  recipes_tibble = recipes_tibble %>%
-                    mutate(
-                      reverse_ratio_1 = product_rate/input_rate_1,
-                      reverse_ratio_2 = product_rate/input_rate_2,
-                      reverse_ratio_3 = product_rate/input_rate_3,
-                      reverse_ratio_4 = product_rate/input_rate_4
-                    )
+  recipes_tibble <- recipes_tibble %>%
+                      mutate(
+                        reverse_ratio_1 = product_rate/input_rate_1,
+                        reverse_ratio_2 = product_rate/input_rate_2,
+                        reverse_ratio_3 = product_rate/input_rate_3,
+                        reverse_ratio_4 = product_rate/input_rate_4
+                      )
   
   return(recipes_tibble)
 }
 
 # Add column to signify if recipe has a byproduct
-AddHasByproduct = function(recipes_tibble) {
+AddHasByproduct <- function(recipes_tibble) {
   
-  recipes_tibble = recipes_tibble %>%
-                    mutate(
-                      has_byproduct = !is.na(byproduct_rate)
-                    )
+  recipes_tibble <- recipes_tibble %>%
+                      mutate(
+                        has_byproduct = !is.na(byproduct_rate)
+                      )
   
   return(recipes_tibble)
 }
 
 # Recipes table pre-processing
 # Add forward, reverse rates
-RECIPES = AddForwardRatios(RECIPES)
-RECIPES = AddReverseRatios(RECIPES)
+RECIPES <- AddForwardRatios(RECIPES)
+RECIPES <- AddReverseRatios(RECIPES)
 
 # Add bool column for presence/absence of byproducts of the recipe
-RECIPES = AddHasByproduct(RECIPES)
+RECIPES <- AddHasByproduct(RECIPES)
 
 # Initialize a tibble for the crafting chain
-CRAFTING_TEMPLATE = tibble(
+CRAFTING_TEMPLATE <- tibble(
                       recipe=character(),
                       input_1=character(), input_rate_1=numeric(),
                       input_2=character(), input_rate_2=numeric(),
@@ -107,47 +107,47 @@ CRAFTING_TEMPLATE = tibble(
                     )
 
 # Make a copy of the template for use
-CRAFTING_TREE = CRAFTING_TEMPLATE
+CRAFTING_TREE <- CRAFTING_TEMPLATE
 
 # -----------------------------------------------------------------------------
 # Call generic function to return the content of input columns
-GatherInputs = function(CRAFTING_TREE) {
+GatherInputs <- function(CRAFTING_TREE) {
   
   return(.GatherColumns(CRAFTING_TREE, 'input'))
 }
 
 # Call generic function to return the content of the product column
-GatherProducts = function(CRAFTING_TREE) {
+GatherProducts <- function(CRAFTING_TREE) {
 
   return(.GatherColumns(CRAFTING_TREE, 'product'))
 }
 
 # Call generic function to return the content of the byproduct column
-GatherByproducts = function(CRAFTING_TREE) {
+GatherByproducts <- function(CRAFTING_TREE) {
   
   return(.GatherColumns(CRAFTING_TREE, 'byproduct'))
 }
 
 # Generic function to return contents of column(s) as one
-.GatherColumns = function(CRAFTING_TREE, col_type) {
+.GatherColumns <- function(CRAFTING_TREE, col_type) {
   
   # Use specified column type for future columns names
-  str_col = paste0('total_', col_type, 's')
-  str_col_rate = paste0('total_', col_type, '_rates')
+  str_col <- paste0('total_', col_type, 's')
+  str_col_rate <- paste0('total_', col_type, '_rates')
   
   # Generate table to return at the end with appropriate columns
-  total_table = tibble({{ str_col }}:=character(), 
-                       {{ str_col_rate }}:=numeric())
+  total_table <- tibble({{ str_col }}:=character(), 
+                        {{ str_col_rate }}:=numeric())
   
   # If single columns are requested
   if(col_type == 'product' | col_type == 'byproduct') {
     
     # Mimic column names in the crafting tree tables
-    str_col_tree = paste0(col_type)
-    str_col_rate_tree = paste0(col_type, '_rate')
+    str_col_tree <- paste0(col_type)
+    str_col_rate_tree <- paste0(col_type, '_rate')
     
     # Select the mimicked columns and rename them to local names generated at the start
-    to_append = CRAFTING_TREE %>% 
+    to_append <- CRAFTING_TREE %>% 
                   select(
                     {{ str_col_tree }}, 
                     {{ str_col_rate_tree }}
@@ -158,12 +158,12 @@ GatherByproducts = function(CRAFTING_TREE) {
                   )
     
     # Add to the final table to be returned, remove NAs if present
-    total_table = total_table %>% 
-                  add_row(to_append) %>% 
-                  drop_na()
+    total_table <- total_table %>% 
+                    add_row(to_append) %>% 
+                    drop_na()
     
     # Group by item name and sum all rates for each item
-    total_table = .GetPerItemRates(total_table, str_col, str_col_rate)
+    total_table <- .GetPerItemRates(total_table, str_col, str_col_rate)
     
     # If 4 input columns are requested
   } else if(col_type == 'input') {
@@ -172,11 +172,11 @@ GatherByproducts = function(CRAFTING_TREE) {
     for(i in 1:4) {
       
       # Mimic column names in the crafting tree tables
-      str_col_i = paste0(col_type, '_', i)
-      str_col_rate_i = paste0(col_type, '_rate_', i)
+      str_col_i <- paste0(col_type, '_', i)
+      str_col_rate_i <- paste0(col_type, '_rate_', i)
       
       # Select the mimicked columns and rename them to local names generated at the start
-      to_append = CRAFTING_TREE %>%
+      to_append <- CRAFTING_TREE %>%
                     select(
                       {{ str_col_i }}, 
                       {{ str_col_rate_i }}
@@ -187,12 +187,12 @@ GatherByproducts = function(CRAFTING_TREE) {
                     )
       
       # Add to the final table to be returned, remove NAs if present
-      total_table = total_table %>% 
+      total_table <- total_table %>% 
                       add_row(to_append) %>% 
                       drop_na()
       
       # Group by item name and sum all rates for each item
-      total_table = .GetPerItemRates(total_table, str_col, str_col_rate)
+      total_table <- .GetPerItemRates(total_table, str_col, str_col_rate)
     }
   }
   
@@ -200,7 +200,7 @@ GatherByproducts = function(CRAFTING_TREE) {
 }
 
 # Worker function to group tables by item name and sum rates
-.GetPerItemRates = function(table, grp_by, grp) {
+.GetPerItemRates <- function(table, grp_by, grp) {
   
   table = table %>%
     group_by(.data[[grp_by]]) %>%
@@ -234,15 +234,7 @@ AddCraftingStepToTree <- function(item_filter, recipe_filter,
   # Calculate the ratio (how many times the recipe is to be used for the step)
   ratio <- CalculateRatio(quantity, recipe_row$product_rate)
   
-  # # Multiply product, byproduct and all inputs by ratio
-  # recipe_row$product_rate <- .RatioTimesColumn(recipe_row$product_rate, ratio)
-  # recipe_row$byproduct_rate <- .RatioTimesColumn(recipe_row$byproduct_rate, ratio)
-  # 
-  # recipe_row$input_rate_1 <- .RatioTimesColumn(recipe_row$input_rate_1, ratio)
-  # recipe_row$input_rate_2 <- .RatioTimesColumn(recipe_row$input_rate_2, ratio)
-  # recipe_row$input_rate_3 <- .RatioTimesColumn(recipe_row$input_rate_3, ratio)
-  # recipe_row$input_rate_4 <- .RatioTimesColumn(recipe_row$input_rate_4, ratio)
-  
+  # Multiply product, byproduct and all inputs by ratio
   recipe_row <- ApplyRatio(recipe_row, ratio)
   
   # Remove duplicate steps in crafting tree
@@ -250,14 +242,13 @@ AddCraftingStepToTree <- function(item_filter, recipe_filter,
                       filter(recipe != recipe_filter)
   
   # Add ratio-multiplied row as step to crafting tree
-  CRAFTING_TREE = .AddRowToCraftingTree(CRAFTING_TREE, recipe_row)
+  CRAFTING_TREE <- .AddRowToCraftingTree(CRAFTING_TREE, recipe_row)
   
   return(CRAFTING_TREE)
 }
 
 ApplyRatio <- function(dataframe, ratio) {
   
-  # Multiply product, byproduct and all inputs by ratio
   dataframe$product_rate <- .RatioTimesColumn(dataframe$product_rate, ratio)
   dataframe$byproduct_rate <- .RatioTimesColumn(dataframe$byproduct_rate, ratio)
   
@@ -294,11 +285,11 @@ NetProduction <- function(CRAFTING_TREE) {
   
   all_products['total_product_rates'] <- all_products['total_product_rates'] * -1
   
-  all_products = all_products %>% rename(items = total_products,
-                                         rates = total_product_rates)
+  all_products <- all_products %>% rename(items = total_products,
+                                          rates = total_product_rates)
   
-  all_inputs = all_inputs %>% rename(items = total_inputs,
-                                     rates = total_input_rates)
+  all_inputs <- all_inputs %>% rename(items = total_inputs,
+                                      rates = total_input_rates)
   
   net_items <- bind_rows(all_products, all_inputs) %>%
                 group_by(items) %>% 
