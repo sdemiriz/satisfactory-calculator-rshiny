@@ -3,10 +3,10 @@ server <- function(input, output, session) {
   
   search_sidebar <- searchSidebarServer('search_sidebar', RECIPES)
   
-  search_table <- searchRecipesTableServer('search_recipes_table',
-                                           RECIPES, 
-                                           reactive(search_sidebar$selected_item()),
-                                           reactive(search_sidebar$selected_quantity()))
+  searchRecipesTableServer('search_recipes_table',
+                           RECIPES, 
+                           reactive(search_sidebar$selected_item()),
+                           reactive(search_sidebar$selected_quantity()))
   
   # # When starting Crafting Tree
   # observeEvent(search_sidebar$start(), {
@@ -18,7 +18,7 @@ server <- function(input, output, session) {
   
   crafting_sidebar <- craftingSidebarServer('crafting_sidebar')
   
-  search_table <- craftingSidebarServer('crafting_tree_table')
+  craftingTreeTableServer('crafting_tree_table', CRAFTING_TREE)
   
   # output$debugger <- renderText({ paste0(typeof(crafting_sidebar$crafting_input()),
   #                                        ': ',
