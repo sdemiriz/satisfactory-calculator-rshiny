@@ -6,14 +6,13 @@ craftingTreeTableUI <- function(id) {
   uiOutput(ns('crafting_tree_table'))
 }
 
-craftingTreeTableServer <- function(id) {
+craftingTreeTableServer <- function(id, CRAFTING_TREE) {
   moduleServer(id, function(input, output, session) {
     
-    # Search Bar Table Viewer
     output$crafting_tree_table <- renderTable({
       
       ns <- session$ns
-      crafting_tree_table
+      CRAFTING_TREE
     })
   })
 }
