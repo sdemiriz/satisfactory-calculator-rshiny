@@ -12,15 +12,13 @@ craftingInputFilterServer <- function(id, choices) {
     output$crafting_input_filter <- renderUI({
       
       ns <- session$ns
-      return(
-        selectInput(
-          inputId = ns('crafting_input_filter'),
-          label = 'Select Input to Configure',
-          choices = choices
-        )
+      selectInput(
+        inputId = ns('crafting_input_filter'),
+        label = 'Select input to configure',
+        choices = choices
       )
     })
     
-    return(reactive({ input$crafting_input_filter }))
+    reactive(input$crafting_input_filter)
   })
 }
