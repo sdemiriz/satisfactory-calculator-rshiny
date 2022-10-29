@@ -23,7 +23,7 @@ ui <- fluidPage(
     
     # Small part of the screen width
     column(SIDE_PANEL_WIDTH, searchSidebarUI('search_sidebar'),
-             # textOutput('debugger')
+             
     ),
     
     # Remaining width of screen houses the "Search Results" table
@@ -37,20 +37,9 @@ ui <- fluidPage(
     column(FULL_SCREEN_WIDTH, h3('Complete Crafting Tree')),
 
     # Small part of screen width is take up by the recipe selector
-    column(SIDE_PANEL_WIDTH,
-
-      # Make recipe selector fields appear grouped
-      wellPanel(
-
-        # Item selector for Crafting Tree
-        craftingInputFilterUI('crafting_input_filter'),
-
-        # Recipe selector for Crafting Tree
-        craftingRecipeFilterUI('crafting_recipe_filter'),
-
-        # Confirm adding the item, recipe to Crafting Tree
-        craftingConfirmButtonUI('crafting_confirm_button')
-      )
+    column(SIDE_PANEL_WIDTH, 
+           craftingSidebarUI('crafting_sidebar'),
+           textOutput('debugger'),
     ),
 
     # Remaining width of the screen houses the "Crafting Tree" table
