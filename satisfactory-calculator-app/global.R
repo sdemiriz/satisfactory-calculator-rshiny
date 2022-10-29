@@ -5,14 +5,16 @@ module_files_list <- c(
   'searchItemFilter.R',
   'searchRecipeFilter.R',
   'searchItemQuantity.R',
-  'searchRecipesTable.R',
   'beginCraftingButton.R',
   'clearCraftingButton.R',
   'searchSidebar.R',
+  'searchRecipesTable.R',
+  
   'craftingInputFilter.R',
   'craftingRecipeFilter.R',
   'craftingConfirmButton.R',
-  'craftingSidebar.R'
+  'craftingSidebar.R',
+  'craftingTreeTable.R'
 )
 
 source_modules <- function(modules_dir, module_files_list) {
