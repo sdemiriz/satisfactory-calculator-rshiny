@@ -5,7 +5,7 @@ clearCraftingButtonUI <- function(id) {
   ns <- NS(id)
   tagList(
     actionButton(
-      inputId = 'crafting_clear', 
+      inputId = ns('search_crafting_clear'), 
       label = 'Clear crafting tree'
     )
   )

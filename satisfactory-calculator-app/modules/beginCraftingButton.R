@@ -5,7 +5,7 @@ beginCraftingButtonUI <- function(id) {
   ns <- NS(id)
   tagList(
     actionButton(
-      inputId = 'crafting_start', 
+      inputId = ns('search_crafting_start'), 
       label = 'Begin crafting tree'
     )
   )
