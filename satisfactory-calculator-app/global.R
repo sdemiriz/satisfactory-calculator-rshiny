@@ -211,8 +211,10 @@ GatherByproducts <- function(CRAFTING_TREE) {
 
 # -----------------------------------------------------------------------------
 # Add calculated crafting step to the crafting tree table
-AddCraftingStepToTree <- function(item_filter, recipe_filter,
-                                  quantity, CRAFTING_TREE) {
+AddCraftingStepToTree <- function(item_filter, 
+                                  recipe_filter,
+                                  quantity, 
+                                  CRAFTING_TREE) {
     
   # Query all available recipes for user selection via parameters
   recipe_row <- RECIPES %>%
@@ -301,9 +303,21 @@ NetProduction <- function(CRAFTING_TREE) {
   return(net_items)
 }
 
-lengthDF <- function(df) {
+LengthDF <- function(df) {
   
   len <- df %>% count() %>% pull()
   
   return(len)
+}
+
+BetterCat <- function(...) {
+  cat('\n', ...)
+}
+
+WarnCat <- function(...) {
+  BetterCat('WARNING: ', ...)
+}
+
+LogCat <- function(...) {
+  BetterCat('LOGGING: ', ...)
 }
