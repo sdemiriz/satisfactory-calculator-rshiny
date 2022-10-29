@@ -3,7 +3,6 @@ library(shiny)
 searchSidebarUI <- function(id) {
   
   ns <- NS(id)
-  
   tagList(
     wellPanel(
       searchItemFilterUI(ns('search_item_filter')),
@@ -39,7 +38,7 @@ searchSidebarServer <- function(id, RECIPES) {
          selected_quantity = reactive(selected_quantity()),
          start = reactive(crafting_start()),
          clear = reactive(crafting_clear())
-         )
+    )
     
     # # Search Bar Start Crafting Button
     # observeEvent(input$crafting_start, {
