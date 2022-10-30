@@ -36,7 +36,7 @@ searchSidebarServer <- function(id, RECIPES) {
     # When starting Crafting Tree
     observeEvent(crafting_start(), {
       
-      if (LengthDF(CRAFTING_TREE) == 0) {
+      if (LengthDF(CRAFTING_TREE()) == 0) {
         
         LogCat('Starting Crafting Tree, adding:')
         BetterCat('\t Itm:', selected_item())
@@ -46,20 +46,22 @@ searchSidebarServer <- function(id, RECIPES) {
         CRAFTING_TREE <<- AddCraftingStepToTree(selected_item(),
                                                 selected_recipe(),
                                                 selected_quantity(),
-                                                CRAFTING_TREE)
+                                                CRAFTING_TREE())
       } else {
         
         WarnCat('Trying to start crafting for non-empty Crafting Tree')
+        BetterCat('Crafting Tree contents: ')
+        print(CRAFTING_TREE())
       }
     })
     
     # When clearing Crafting Tree
     observeEvent(crafting_clear(), {
       
-      if (LengthDF(CRAFTING_TREE) > 0) {
+      if (LengthDF(CRAFTING_TREE()) > 0) {
         
         LogCat('Clearing Crafting Tree')
-        CRAFTING_TREE <<- CRAFTING_TEMPLATE
+        CRAFTING_TREE <<- reactive(CRAFTING_TEMPLATE)
         
       } else {
         
